@@ -43,16 +43,6 @@ async function emitAllUsers(socket : Socket<ClientToServerEvents,ServerToClientE
 }
 
 async function changeUsernameInAllDocuments(userid: string, username: string) {
-  const messages = await MessageModel.find({userid})
-  messages.forEach(async (message) => {
-    message.username = username
-    await message.save()
-  })
-  const qaEntries = await QAEntryModel.find({userid})
-  qaEntries.forEach(async (qaEntry) => {
-    if (qaEntry.username) {
-      qaEntry.username = username
-      await qaEntry.save()
-    }
-  })
+  await MessageModel.updateMany({userid}, {username})
+  await QAEntryModel.updateMany({userid, username:{ $ne: null }}, {username})
 }

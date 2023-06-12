@@ -43,6 +43,6 @@ async function emitAllUsers(socket : Socket<ClientToServerEvents,ServerToClientE
 }
 
 async function changeUsernameInAllDocuments(userid: string, username: string) {
-  await MessageModel.updateMany({userid}, {username})
-  await QAEntryModel.updateMany({userid, username:{ $ne: null }}, {username})
+  await MessageModel.updateMany({userid}, {username}).exec()
+  await QAEntryModel.updateMany({userid, username:{ $ne: null }}, {username}).exec()
 }

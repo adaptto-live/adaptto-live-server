@@ -36,5 +36,5 @@ jobs:
       with:
         app-name: app-adaptto-live-001-prd-weu
         slot-name: Production
-        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_5BBC82DFCEA24EFE9AAB7DFC645D22A0 }}
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D84F8AB7066D4083B2595C9D262C4D2D }}
         package: .

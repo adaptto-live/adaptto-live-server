@@ -2,12 +2,10 @@ import { Socket } from 'socket.io'
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from '../socket.types'
 import log from '../../util/log'
 import AuthenticationInfo from '../../util/AuthenticationInfo'
-import { UserModel } from '../../repository/mongodb.schema'
-import { MessageModel } from '../../repository/mongodb.schema'
-import { QAEntryModel } from '../../repository/mongodb.schema'
+import { UserModel, MessageModel, QAEntryModel } from '../../repository/mongodb.schema'
 
 export async function handleAdminUserManagement(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    authenticationInfo : AuthenticationInfo) : Promise<void> {
+    authenticationInfo : AuthenticationInfo) {
 
   // admin-only operations
   if (!authenticationInfo.admin) {
@@ -16,12 +14,12 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
 
   socket.on('adminGetAllUsers', async () => {
     log.debug('Admin: get all users')
-    emitAllUsers(socket)
+    await emitAllUsers(socket)
   })
 
   socket.on('adminUpdateUser', async (id, username, admin, blocked) => {
     log.debug(`Admin: update user ${username}`)
-    const user = await UserModel.findOne({_id:id})
+    const user = await UserModel.findOne({_id:id}).exec()
     if (user) {
       const userNameChanged = user.username != username
       user.username = username
@@ -29,7 +27,7 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
       user.blocked = blocked
       await user.save()
       if (userNameChanged) {
-        changeUsernameInAllDocuments(id, username)
+        await changeUsernameInAllDocuments(id, username)
       }
     }
   })
@@ -37,22 +35,12 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
 }
 
 async function emitAllUsers(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
-  const users = await UserModel.find().sort({username:1,_id:1})    
+  const users = await UserModel.find().sort({username:1,_id:1}).exec()
   socket.emit('adminAllUsers', users.map(user => 
       ({id: user.id, username: user.username, admin: user.admin, blocked: user.blocked})))
 }
 
-async function changeUsernameInAllDocuments(userid: string, username: string) : Promise<void> {
-  const messages = await MessageModel.find({userid})
-  messages.forEach(message => {
-    message.username = username
-    message.save()
-  })
-  const qaEntries = await QAEntryModel.find({userid})
-  qaEntries.forEach(qaEntry => {
-    if (qaEntry.username) {
-      qaEntry.username = username
-      qaEntry.save()
-    }
-  })
+async function changeUsernameInAllDocuments(userid: string, username: string) {
+  await MessageModel.updateMany({userid}, {username}).exec()
+  await QAEntryModel.updateMany({userid, username:{ $ne: null }}, {username}).exec()
 }

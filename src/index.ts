@@ -37,12 +37,12 @@ app.get('/', (req, res) => {
 io.use(middleware)
 io.on('connection', async (socket) => {
   const authenticationInfo = await handleConnection(socket)
-  handleCurrentTalk(socket, authenticationInfo)
-  handleTalkRatings(socket, authenticationInfo)
-  handleTalkRoom(io, socket, authenticationInfo)
-  handleAdminUserManagement(socket, authenticationInfo)
-  handleAdminTalkRatings(socket, authenticationInfo)
-  handleAdminStatistics(socket, authenticationInfo)
+  await handleCurrentTalk(socket, authenticationInfo)
+  await handleTalkRatings(socket, authenticationInfo)
+  await handleTalkRoom(io, socket, authenticationInfo)
+  await handleAdminUserManagement(socket, authenticationInfo)
+  await handleAdminTalkRatings(socket, authenticationInfo)
+  await handleAdminStatistics(socket, authenticationInfo)
 })
 
 async function run() {

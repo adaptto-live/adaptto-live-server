@@ -9,28 +9,28 @@ const roomUsers = new RoomUsers()
 
 export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
     socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    authenticationInfo : AuthenticationInfo) : Promise<void> {
+    authenticationInfo : AuthenticationInfo) {
   const { userid, username, admin } = authenticationInfo
 
   // join room for messages and Q&A entries
   socket.on('roomEnter', async (talkId: string) => {
     log.debug(`User ${username} joins room ${talkId}`)
-    socket.join(talkId)
+    await socket.join(talkId)
 
     // emit all users currently in this room
     io.to(talkId).emit('roomUsers', roomUsers.joinsRoom(talkId, socket, username))
 
     // emit all existing messages and Q&A entries
-    ;(await MessageModel.find({talkId}).sort({date:1})).forEach(doc => {
+    ;(await MessageModel.find({talkId}).sort({date:1}).exec()).forEach(doc => {
       socket.emit('message', doc.id, doc.date, doc.userid, doc.username, doc.text)
     })
-    ;(await QAEntryModel.find({talkId}).sort({date:1})).forEach(doc => {
+    ;(await QAEntryModel.find({talkId}).sort({date:1}).exec()).forEach(doc => {
       socket.emit('qaEntry', doc.id, doc.date, doc.userid, doc.username, doc.text)
     })
   })
-  socket.on('roomLeave', (talkId: string) => {
+  socket.on('roomLeave', async (talkId: string) => {
     log.debug(`User ${username} leaves room ${talkId}`)
-    socket.leave(talkId)
+    await socket.leave(talkId)
 
     // emit all users currently in this room
     io.to(talkId).emit('roomUsers', roomUsers.leavesRoom(talkId, socket))
@@ -42,15 +42,15 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
   })
 
   // CRUD handling for chat messages
-  socket.on('message', (id: string, talkId: string, text: string) => {
+  socket.on('message', async (id: string, talkId: string, text: string) => {
     log.debug(`User ${username} created message in ${talkId}: ${text}`)
     const date = new Date()
-    MessageModel.create({ _id:id, talkId, date, userid, username, text })
+    await MessageModel.create({ _id:id, talkId, date, userid, username, text })
     socket.in(talkId).emit('message', id, date, userid, username, text)
   })
   socket.on('messageUpdate', async (id: string, text: string) => {
     log.debug(`User ${username} updated message ${id}: ${text}`)
-    const message = await MessageModel.findById(id)
+    const message = await MessageModel.findById(id).exec()
     if (message != null && ((message.userid == userid) || admin)) {
       message.text = text
       await message.save()
@@ -59,7 +59,7 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
   })
   socket.on('messageDelete', async (id: string) => {
     log.debug(`User ${username} deleted message ${id}`)
-    const message = await MessageModel.findById(id)
+    const message = await MessageModel.findById(id).exec()
     if (message != null && ((message.userid == userid) || admin)) {
       await message.deleteOne()
       socket.in(message.talkId).emit('messageDelete', id)
@@ -67,22 +67,25 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
   })
 
   // CRUD handling for Q&A entries
-  socket.on('qaEntry', (id: string, talkId: string, text: string, anonymous?: boolean) => {
+  socket.on('qaEntry', async (id: string, talkId: string, text: string, anonymous?: boolean) => {
     log.debug(`User ${username} created Q&A entry in ${talkId}: ${text}`)
     const date = new Date()
     const qaEntryUsername = anonymous ? undefined : username
-    QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text })
+    await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text })
     socket.in(talkId).emit('qaEntry', id, date, userid, qaEntryUsername, text)
   })
   socket.on('qaEntryUpdate', async (id: string, text: string, anonymous?: boolean) => {
     log.debug(`User ${username} updated Q&A entry ${id}: ${text}`)
-    const message = await QAEntryModel.findById(id)
+    const message = await QAEntryModel.findById(id).exec()
     if (message != null && ((message.userid == userid) || admin)) {
       if (anonymous) {
         message.username = undefined
       }
       else {
-        message.username = (await UserModel.findOne({_id:message.userid}))?.username
+        const originalPoster = await UserModel.findOne({_id:message.userid}).exec()
+        if (originalPoster) {
+          message.username = originalPoster.username
+        }
       }
       message.text = text
       await message.save()
@@ -91,7 +94,7 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
   })
   socket.on('qaEntryDelete', async (id: string) => {
     log.debug(`User ${username} deleted Q&A entry ${id}`)
-    const message = await QAEntryModel.findById(id)
+    const message = await QAEntryModel.findById(id).exec()
     if (message != null && ((message.userid == userid) || admin)) {
       await message.deleteOne()
       socket.in(message.talkId).emit('qaEntryDelete', id)

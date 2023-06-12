@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 import AuthenticationInfo from '../util/AuthenticationInfo'
 
 export async function handleTalkRatings(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    authenticationInfo : AuthenticationInfo) : Promise<void> {
+    authenticationInfo : AuthenticationInfo) {
   const { userid, username } = authenticationInfo
 
   // emit all existing talk ratings on login
@@ -19,7 +19,7 @@ export async function handleTalkRatings(socket : Socket<ClientToServerEvents,Ser
     await TalkRatingModel.deleteMany({talkId, userid})
     if (rating) {
       log.debug(`User ${username} rated talk ${talkId} with ${rating}`)
-      TalkRatingModel.create({_id: uuidv4(), talkId, userid, rating, comment})
+      await TalkRatingModel.create({_id: uuidv4(), talkId, userid, rating, comment})
     }
     else {
       log.debug(`User ${username} removed talk rating for ${talkId}`)

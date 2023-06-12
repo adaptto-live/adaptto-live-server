@@ -5,7 +5,7 @@ import AuthenticationInfo from '../../util/AuthenticationInfo'
 import { TalkRatingModel, TalkRating } from '../../repository/mongodb.schema'
 
 export async function handleAdminTalkRatings(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    authenticationInfo : AuthenticationInfo) : Promise<void> {
+    authenticationInfo : AuthenticationInfo) {
 
   // admin-only operations
   if (!authenticationInfo.admin) {
@@ -21,7 +21,7 @@ export async function handleAdminTalkRatings(socket : Socket<ClientToServerEvent
 }
 
 async function calcTalkRatings() : Promise<{talkId: string, averageRating: number, participants: number, comments: string[]}[]> {
-  const talkRatings = await TalkRatingModel.find().sort({talkId:1,_id:1})
+  const talkRatings = await TalkRatingModel.find().sort({talkId:1,_id:1}).exec()
   const dataMap = new Map<string,TalkRatingData>()
   talkRatings.forEach(talkRating => {
     let data = dataMap.get(talkRating.talkId)

@@ -7,7 +7,7 @@ import { UserModel } from '../repository/mongodb.schema'
 // this is executed when a new Websocket connection is created
 export async function middleware(
     socket: Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    next: (err?: ExtendedError) => void) : Promise<void> {
+    next: (err?: ExtendedError) => void) {
 
   // validate presence of a user name in middleware
   const username = socket.handshake.auth.username

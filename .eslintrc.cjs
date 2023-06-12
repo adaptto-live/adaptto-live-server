@@ -10,5 +10,8 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest'
   },
-  ignorePatterns: ["ecosystem.config.js"]
+  ignorePatterns: [
+    "ecosystem.config.js",
+    "testing/**"
+  ]
 }

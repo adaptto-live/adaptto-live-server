@@ -1,5 +1,7 @@
 # adaptTo() Live Server
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=adaptto_adaptto-live-server&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=adaptto_adaptto-live-server)
+
 adaptTo() Live server application (Node JS app with socket.io and MongoDB).
 
 Technology Stack:

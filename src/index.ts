@@ -13,6 +13,7 @@ import { handleCurrentTalk } from './socket/currentTalk'
 import { handleAdminUserManagement } from './socket/admin/userManagement'
 import { handleAdminTalkRatings } from './socket/admin/talkRatings'
 import { handleAdminStatistics } from './socket/admin/statistics'
+import { version} from '../package.json'
 
 // read env configuration
 config()
@@ -31,7 +32,7 @@ process.on('uncaughtException', err => {
 
 app.get('/', (req, res) => {
   res.contentType('text/plain')
-  res.send(`adaptTo() Live Server ${process.env.npm_package_version}`);
+  res.send(`adaptTo() Live Server ${version}`);
 });
 
 io.use(middleware)

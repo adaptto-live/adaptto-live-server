@@ -1,0 +1,93 @@
+config:
+  target: "http://localhost:3030"
+  phases:
+    - duration: 300     # Duration of phase in sec
+      arrivalRate: 5    # Number of new users per second
+      maxVusers: 500    # Maxmium of concurrent users at any time
+  processor: processor.js
+  engines:
+    socketio-v3: {}
+  payload:
+    # List of users to randomly pick from
+    - path: ../payload/users.csv
+      fields:
+      - username
+    # List of talks to randomly pick from
+    - path: ../payload/talks.csv
+      fields:
+      - randomTalkId
+      skipHeader: true
+    # Use first talk in list as current talk
+    - path: ../payload/talks.csv
+      fields:
+      - currentTalkId
+      skipHeader: true
+      order: sequence
+    # List of chat messages to randomly pick from
+    - path: ../payload/messages.csv
+      fields:
+      - message1
+      delimiter: "|"
+    - path: ../payload/messages.csv
+      fields:
+      - message2
+      delimiter: "|"
+    - path: ../payload/messages.csv
+      fields:
+      - message3
+      delimiter: "|"
+    - path: ../payload/messages.csv
+      fields:
+      - message4
+      delimiter: "|"
+    - path: ../payload/messages.csv
+      fields:
+      - message5
+      delimiter: "|"
+    - path: ../payload/messages.csv
+      fields:
+      - message6
+      delimiter: "|"
+    - path: ../payload/messages.csv
+      fields:
+      - message7
+      delimiter: "|"
+    # List of ratings to randomly pick from
+    - path: ../payload/ratings.csv
+      fields:
+      - rating1
+
+scenarios:
+  - name: Discuss, Q&A and Rate
+    engine: socketio-v3
+    flow:
+      - connect:
+          auth:
+            username: "{{username}}"
+      - think: 1
+      - emit: ["roomEnter", "{{currentTalkId}}"]
+      - think: 1
+      - function: generateUUID
+      - emit: ["message", "{{uuid}}", "{{currentTalkId}}", "{{message1}}"]
+      - think: 1
+      - function: generateUUID
+      - emit: ["qaEntry", "{{uuid}}", "{{currentTalkId}}", "{{message2}}", false]
+      - think: 1
+      - function: generateUUID
+      - emit: ["message", "{{uuid}}", "{{currentTalkId}}", "{{message3}}"]
+      - think: 2
+      - function: generateUUID
+      - emit: ["message", "{{uuid}}", "{{currentTalkId}}", "{{message4}}"]
+      - think: 1
+      - emit: ["talkRating", "{{currentTalkId}}", "{{rating1}}", "{{message5}}"]
+      - think: 1
+      - emit: ["roomLeave", "{{currentTalkId}}"]
+      - think: 1
+      - emit: ["roomEnter", "{{randomTalkId}}"]
+      - think: 1
+      - function: generateUUID
+      - emit: ["message", "{{uuid}}", "{{randomTalkId}}", "{{message6}}"]
+      - think: 1
+      - emit: ["talkRating", "{{randomTalkId}}", "{{rating2}}", "{{message7}}"]
+      - think: 1
+      - emit: ["roomLeave", "{{randomTalkId}}"]

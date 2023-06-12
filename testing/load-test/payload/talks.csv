@@ -1,0 +1,28 @@
+id,day,title,speakers
+whats-up-with-core-components,1,What’s up with Core Components?,Vlad Bailescu
+franklin-content-import,1,Franklin Content Import - migrate almost any website,Markus Haack
+building-adaptto-website-with-aem-franklin,1,Building adaptTo() Website with AEM Franklin,Stefan Seifert
+build-super-fast-storefront-experiences,1,Build Super Fast Storefront Experiences with AEM Next Gen Composability and Adobe Commerce,Mark J. Becker
+aem-headless-panel-discussion,1,AEM Headless Panel Discussion,TBA
+rapid-development-environments-aem-cloud-service,1,Rapid Development Environments for AEM Cloud Service,"David Boschaert, Karl Pauls"
+automated-ci-with-aem-cloud-service,1,Automated CI with AEM Cloud service,"Andres Bott, Jakub Wądołowski"
+dispatcher-caching-best-pratices,1,Dispatcher Caching: Best Practices for TTL-Based Optimization,"Ben Peter, Robert Botha, Anomitra Mondal"
+integration-grow-repeat-website-dxp,1,"Integrate, grow, repeat. How WebSight real-time DXP provides a way to break out of the content-centric model","Michał Cukierman, Maciej Laskowski"
+edit-anything-with-the-universal-editor,2,Edit anything with the Universal Editor,"Sharanya Vinod, Artur Kudlacz"
+unleashing-web-development-ppowerwoer-headless-hybrid,2,Unleashing Web Development Power: Using AEM Headless with Hybrid Rendering Frontend Frameworks,"Duy Nguyen, Lucian Ghita"
+aem-headless-with-wcm-io-site-api,2,AEM Headless with wcm.io Site API,Stefan Seifert
+archieving-agility-and-flexibility,2,Achieving Agility and Flexibility with AEM Hybrid Implementation,"Shruti Damle, Nikola Vasilev, Juan Sanchez"
+the-curios-case-of-misrendered-json,2,The curious case of misrendered JSON,Jakub Wądołowski
+aem-headless-frontend-develop-made-easy,2,AEM Headless Frontend Development Made Easy: A Glimpse of Developer Tools,"Duy Nguyen, Dragan Filipovic"
+optimising-graphqul-delivering-in-aem,2,Optimising GraphQL delivery in AEM,"Evgeny Tugarev, Georg Henzler"
+evolution-of-the-aemaacs-build-pipeline,2,Evolution of the AEMaaCS Build Pipeline,Dominik Süß
+extending-aem-authoring-experience-though-js-extension,2,Extending AEM authoring experience through Javascript Extension,"Félix Delval, Corey Dulimba"
+seamless-ai-powered-search-solution,3,Seamless AI-Powered Search Solution: Merging Adobe’s Next-Gen Composability and Chatbottery for an Enhanced User Experience,Tino Truppel
+markting-technology-without-sacrificing-performance-a-web-developers-guide-to-ensuring-experience-success,3,Marketing technology without sacrificing performance: A web developer's guide to ensuring experience success,"Ekrem Dogan, Dominique Jaeggi"
+where-to-render,3,Where to render? That is the question!,Bertrand Delacretaz
+hot-to-improve-the-backend-performance,3,How to improve the backend performance of your AEM application,Jörg Hoh
+api-first-and-rest,3,"API-first and REST, can they complement each other?",Radu Cotescu
+bullseye-adobe-target-extras,3,Bullseye - Adobe Target Extras,Bryan Williams
+get-your-aem-together-aem-compose-devex-tool,3,"Get Your AEM Together: AEM Compose, the Ultimate DevEx Tool","Krystian Panek, Tomasz Sobczyk"
+sling-application-devops-perspective,3,Sling Applications - a DevOps perspective,Robert Munteanu
+dont-reduce-dispatcher-testing,3,Don’t reduce dispatcher testing to an afterthought,Jakub Wądołowski

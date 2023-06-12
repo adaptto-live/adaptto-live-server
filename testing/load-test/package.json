@@ -1,0 +1,10 @@
+{
+  "name": "adaptto-live-load-test",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "artillery": "^2.0.0-32",
+    "artillery-engine-socketio-v3": "github:ptejada/artillery-engine-socketio-v3#master",
+    "uuid": "^9.0.0"
+  }
+}

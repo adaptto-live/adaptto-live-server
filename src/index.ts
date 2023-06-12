@@ -31,7 +31,7 @@ process.on('uncaughtException', err => {
 
 app.get('/', (req, res) => {
   res.contentType('text/plain')
-  res.send('adaptTo() Live Server');
+  res.send(`adaptTo() Live Server ${process.env.npm_package_version}`);
 });
 
 io.use(middleware)

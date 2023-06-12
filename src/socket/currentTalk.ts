@@ -9,7 +9,7 @@ export async function handleCurrentTalk(socket : Socket<ClientToServerEvents,Ser
     authenticationInfo : AuthenticationInfo) {
 
   // emit current talk on login
-  const currentTalk = await CurrentTalkModel.findOne()
+  const currentTalk = await CurrentTalkModel.findOne().exec()
   if (currentTalk) {
     socket.emit('currentTalk', currentTalk.talkId)
   }
@@ -17,7 +17,7 @@ export async function handleCurrentTalk(socket : Socket<ClientToServerEvents,Ser
   // allow to change current talk (only admin)
   if (authenticationInfo.admin) {
     socket.on('currentTalk', async (talkId: string) => {
-      await CurrentTalkModel.deleteMany()
+      await CurrentTalkModel.deleteMany().exec()
       log.debug(`Set current talk to ${talkId}`)
       await CurrentTalkModel.create({_id: uuidv4(), talkId})
       socket.broadcast.emit('currentTalk', talkId)

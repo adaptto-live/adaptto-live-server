@@ -10,13 +10,13 @@ export async function handleTalkRatings(socket : Socket<ClientToServerEvents,Ser
   const { userid, username } = authenticationInfo
 
   // emit all existing talk ratings on login
-  ;(await TalkRatingModel.find({userid})).forEach(doc => {
+  ;(await TalkRatingModel.find({userid}).exec()).forEach(doc => {
     socket.emit('talkRating', doc.talkId, doc.rating, doc.comment)
   })
 
   // store talk ratings
   socket.on('talkRating', async (talkId: string, rating?: number, comment? : string) => {
-    await TalkRatingModel.deleteMany({talkId, userid})
+    await TalkRatingModel.deleteMany({talkId, userid}).exec()
     if (rating) {
       log.debug(`User ${username} rated talk ${talkId} with ${rating}`)
       await TalkRatingModel.create({_id: uuidv4(), talkId, userid, rating, comment})

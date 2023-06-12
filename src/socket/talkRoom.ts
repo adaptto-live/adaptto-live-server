@@ -9,13 +9,13 @@ const roomUsers = new RoomUsers()
 
 export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
     socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    authenticationInfo : AuthenticationInfo) : Promise<void> {
+    authenticationInfo : AuthenticationInfo) {
   const { userid, username, admin } = authenticationInfo
 
   // join room for messages and Q&A entries
   socket.on('roomEnter', async (talkId: string) => {
     log.debug(`User ${username} joins room ${talkId}`)
-    socket.join(talkId)
+    await socket.join(talkId)
 
     // emit all users currently in this room
     io.to(talkId).emit('roomUsers', roomUsers.joinsRoom(talkId, socket, username))
@@ -28,9 +28,9 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
       socket.emit('qaEntry', doc.id, doc.date, doc.userid, doc.username, doc.text)
     })
   })
-  socket.on('roomLeave', (talkId: string) => {
+  socket.on('roomLeave', async (talkId: string) => {
     log.debug(`User ${username} leaves room ${talkId}`)
-    socket.leave(talkId)
+    await socket.leave(talkId)
 
     // emit all users currently in this room
     io.to(talkId).emit('roomUsers', roomUsers.leavesRoom(talkId, socket))
@@ -42,10 +42,10 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
   })
 
   // CRUD handling for chat messages
-  socket.on('message', (id: string, talkId: string, text: string) => {
+  socket.on('message', async (id: string, talkId: string, text: string) => {
     log.debug(`User ${username} created message in ${talkId}: ${text}`)
     const date = new Date()
-    MessageModel.create({ _id:id, talkId, date, userid, username, text })
+    await MessageModel.create({ _id:id, talkId, date, userid, username, text })
     socket.in(talkId).emit('message', id, date, userid, username, text)
   })
   socket.on('messageUpdate', async (id: string, text: string) => {
@@ -67,11 +67,11 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
   })
 
   // CRUD handling for Q&A entries
-  socket.on('qaEntry', (id: string, talkId: string, text: string, anonymous?: boolean) => {
+  socket.on('qaEntry', async (id: string, talkId: string, text: string, anonymous?: boolean) => {
     log.debug(`User ${username} created Q&A entry in ${talkId}: ${text}`)
     const date = new Date()
     const qaEntryUsername = anonymous ? undefined : username
-    QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text })
+    await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text })
     socket.in(talkId).emit('qaEntry', id, date, userid, qaEntryUsername, text)
   })
   socket.on('qaEntryUpdate', async (id: string, text: string, anonymous?: boolean) => {

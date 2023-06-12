@@ -7,7 +7,7 @@ import { MessageModel } from '../../repository/mongodb.schema'
 import { QAEntryModel } from '../../repository/mongodb.schema'
 
 export async function handleAdminUserManagement(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    authenticationInfo : AuthenticationInfo) : Promise<void> {
+    authenticationInfo : AuthenticationInfo) {
 
   // admin-only operations
   if (!authenticationInfo.admin) {
@@ -16,7 +16,7 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
 
   socket.on('adminGetAllUsers', async () => {
     log.debug('Admin: get all users')
-    emitAllUsers(socket)
+    await emitAllUsers(socket)
   })
 
   socket.on('adminUpdateUser', async (id, username, admin, blocked) => {
@@ -29,7 +29,7 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
       user.blocked = blocked
       await user.save()
       if (userNameChanged) {
-        changeUsernameInAllDocuments(id, username)
+        await changeUsernameInAllDocuments(id, username)
       }
     }
   })
@@ -42,17 +42,17 @@ async function emitAllUsers(socket : Socket<ClientToServerEvents,ServerToClientE
       ({id: user.id, username: user.username, admin: user.admin, blocked: user.blocked})))
 }
 
-async function changeUsernameInAllDocuments(userid: string, username: string) : Promise<void> {
+async function changeUsernameInAllDocuments(userid: string, username: string) {
   const messages = await MessageModel.find({userid})
-  messages.forEach(message => {
+  messages.forEach(async (message) => {
     message.username = username
-    message.save()
+    await message.save()
   })
   const qaEntries = await QAEntryModel.find({userid})
-  qaEntries.forEach(qaEntry => {
+  qaEntries.forEach(async (qaEntry) => {
     if (qaEntry.username) {
       qaEntry.username = username
-      qaEntry.save()
+      await qaEntry.save()
     }
   })
 }

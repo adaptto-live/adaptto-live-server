@@ -5,7 +5,7 @@ import AuthenticationInfo from '../../util/AuthenticationInfo'
 import { MessageModel, QAEntryModel, TalkRatingModel, UserModel } from '../../repository/mongodb.schema'
 
 export async function handleAdminStatistics(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    authenticationInfo : AuthenticationInfo) : Promise<void> {
+    authenticationInfo : AuthenticationInfo) {
 
   // admin-only operations
   if (!authenticationInfo.admin) {

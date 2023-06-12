@@ -5,7 +5,7 @@ import AuthenticationInfo from '../../util/AuthenticationInfo'
 import { TalkRatingModel, TalkRating } from '../../repository/mongodb.schema'
 
 export async function handleAdminTalkRatings(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    authenticationInfo : AuthenticationInfo) : Promise<void> {
+    authenticationInfo : AuthenticationInfo) {
 
   // admin-only operations
   if (!authenticationInfo.admin) {

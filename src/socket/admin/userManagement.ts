@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io'
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from '../socket.types'
 import log from '../../util/log'
-import { UserModel, MessageModel, QAEntryModel } from '../../repository/mongodb.schema'
+import { UserModel } from '../../repository/mongodb.schema'
 import changeUsernameInAllDocuments from '../../util/changeUsernameInAllDocuments'
 
 export async function handleAdminUserManagement(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {

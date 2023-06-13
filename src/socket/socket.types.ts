@@ -9,9 +9,10 @@ export interface ServerToClientEvents {
   qaEntry: (id: string, date: Date, userid: string, username: string|undefined, text: string) => void
   qaEntryUpdate: (id: string, date: Date, userid: string, username: string|undefined, text: string) => void
   qaEntryDelete: (id: string) => void
-  adminAllUsers: (users: {id: string, username: string, admin: boolean, blocked: boolean}[]) => void
+  adminLoginCodes: (loginCodes: {code: string, userid: string, username:string, used: Date}[]) => void
+  adminUsers: (users: {id: string, code: string, username: string, admin: boolean, blocked: boolean, created: Date, updated: Date}[]) => void
   adminTalkRatings: (ratings: {talkId: string, averageRating: number, participants: number, comments: string[]}[]) => void
-  adminStatistics: (numUsers: number, numTalkRatings: number, numMessages: number, numQAEntries: number) => void
+  adminStatistics: (numLoginCodes: number, numUsers: number, numTalkRatings: number, numMessages: number, numQAEntries: number) => void
 }
 
 export interface ClientToServerEvents {
@@ -25,11 +26,18 @@ export interface ClientToServerEvents {
   qaEntry: (id: string, talkId: string, text: string, anonymous?: boolean) => void
   qaEntryUpdate: (id: string, text: string, anonymous?: boolean) => void
   qaEntryDelete: (id: string) => void
-  adminGetAllUsers: () => void
+  adminGetLoginCodes: () => void
+  adminGetUsers: () => void
   adminUpdateUser: (id: string, username: string, admin: boolean, blocked: boolean) => void
   adminGetTalkRatings: () => void
   adminGetStatistics: () => void
 }
 
 export interface InterServerEvents {} // eslint-disable-line @typescript-eslint/no-empty-interface
-export interface SocketData {} // eslint-disable-line @typescript-eslint/no-empty-interface
+
+export interface SocketData {
+  userid: string
+  username: string
+  admin: boolean
+  usernameChanged: boolean
+}

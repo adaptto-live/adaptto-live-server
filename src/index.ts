@@ -14,6 +14,9 @@ import { handleAdminUserManagement } from './socket/admin/userManagement'
 import { handleAdminTalkRatings } from './socket/admin/talkRatings'
 import { handleAdminStatistics } from './socket/admin/statistics'
 import { version} from '../package.json'
+import { handleTalkRoomMessages } from './socket/talkRoomMessages'
+import { handleTalkRoomQAEntries } from './socket/talkRoomQAEntries'
+import { handleAdminLoginCodeManagement } from './socket/admin/loginCodeManagement'
 
 // read env configuration
 config()
@@ -37,13 +40,16 @@ app.get('/', (req, res) => {
 
 io.use(middleware)
 io.on('connection', async (socket) => {
-  const authenticationInfo = await handleConnection(socket)
-  await handleCurrentTalk(socket, authenticationInfo)
-  await handleTalkRatings(socket, authenticationInfo)
-  await handleTalkRoom(io, socket, authenticationInfo)
-  await handleAdminUserManagement(socket, authenticationInfo)
-  await handleAdminTalkRatings(socket, authenticationInfo)
-  await handleAdminStatistics(socket, authenticationInfo)
+  await handleConnection(socket)
+  await handleCurrentTalk(socket)
+  await handleTalkRatings(socket)
+  await handleTalkRoom(io, socket)
+  await handleTalkRoomMessages(socket)
+  await handleTalkRoomQAEntries(socket)
+  await handleAdminLoginCodeManagement(socket)
+  await handleAdminUserManagement(socket)
+  await handleAdminTalkRatings(socket)
+  await handleAdminStatistics(socket)
 })
 
 async function run() {

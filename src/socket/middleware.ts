@@ -11,8 +11,7 @@ export async function middleware(
     next: (err?: ExtendedError) => void) {
 
   // validate presence of valid login code and username
-  const code = socket.handshake.auth.code
-  const username = socket.handshake.auth.username
+  const { code, username } = socket.handshake.auth
   if (!code || !username) {
     log.debug('Reject request without auth.code and auth.username property.')
     next(new Error('Not authorized'))
@@ -20,20 +19,20 @@ export async function middleware(
   }
 
   // check fo existing user for this login code
-  const existingUser = await UserModel.findOne({code}).exec()
-  if (existingUser) {
-    if (existingUser.blocked) {
+  const user = await UserModel.findOne({code}).exec()
+  if (user) {
+    if (user.blocked) {
       // reject connection if user is blocked
-      log.debug(`Reject blocked user: ${existingUser.username}, code ${code}`)
-      next(new Error(`User '${existingUser.username}' is blocked.`))
+      log.debug(`Reject blocked user: ${username}, code ${code}`)
+      next(new Error(`User is blocked.`))
       return
     }
     else {
       // allow existing user
-      socket.data.userid = existingUser._id
+      socket.data.userid = user._id
       socket.data.username = username
-      socket.data.admin = existingUser.admin
-      socket.data.usernameChanged = (existingUser.username != username)
+      socket.data.admin = user.admin
+      socket.data.usernameChanged = (user.username != username)
       next()
       return
     }
@@ -56,7 +55,6 @@ export async function middleware(
   else {
     // login code is valid
     log.debug(`Invalid login code: ${code}`)
-    socket.data
     next(new Error(`Invalid login code: ${code}`))
   }
 

@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io'
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from './socket.types'
-import { QAEntry, QAEntryModel, UserModel } from '../repository/mongodb.schema'
+import { QAEntryModel, UserModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 
 export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {

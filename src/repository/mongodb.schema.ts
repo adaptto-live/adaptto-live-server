@@ -9,7 +9,7 @@ export interface User {
   updated: Date
 }
 const UserSchema = new mongoose.Schema<User>({
-  _id: { type: String, required:true, index:true },
+  _id: { type: String, required:true },
   username: { type: String, required:true, index:true },
   admin: { type: Boolean, required:false },
   blocked: { type: Boolean, required:false },
@@ -24,7 +24,7 @@ interface CurrentTalk {
   created: Date
 }
 const CurrentTalkSchema = new mongoose.Schema<CurrentTalk>({
-  _id: { type: String, required:true, index:true },
+  _id: { type: String, required:true },
   talkId: { type: String, required:true },
   created: { type: Date, required:false }
 })
@@ -39,7 +39,7 @@ export interface TalkRating {
   created: Date
 }
 const TalkRatingSchema = new mongoose.Schema<TalkRating>({
-  _id: { type: String, required:true, index:true },
+  _id: { type: String, required:true },
   talkId: { type: String, required:true, index:true },
   userid: { type: String, required:true, index:true },
   rating: { type: Number, required:true },
@@ -57,7 +57,7 @@ export interface Message {
   text: string
 }
 const MessageSchema = new mongoose.Schema<Message>({
-  _id: { type: String, required:true, index:true },
+  _id: { type: String, required:true },
   talkId: { type: String, required:true, index:true },
   date: { type: Date, default: Date.now, index:true },
   userid: { type: String, required:true, index:true },
@@ -75,7 +75,7 @@ export interface QAEntry {
   text: string
 }
 const QAEntrySchema = new mongoose.Schema<QAEntry>({
-  _id: { type: String, required:true, index:true },
+  _id: { type: String, required:true },
   talkId: { type: String, required:true, index:true },
   date: { type: Date, default: Date.now, index:true },
   userid: { type: String, required:true, index:true },

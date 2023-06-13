@@ -19,7 +19,7 @@ export async function handleTalkRatings(socket : Socket<ClientToServerEvents,Ser
     await TalkRatingModel.deleteMany({talkId, userid}).exec()
     if (rating) {
       log.debug(`User ${username} rated talk ${talkId} with ${rating}`)
-      await TalkRatingModel.create({_id: uuidv4(), talkId, userid, rating, comment})
+      await TalkRatingModel.create({_id: uuidv4(), talkId, userid, rating, comment, created: new Date()})
     }
     else {
       log.debug(`User ${username} removed talk rating for ${talkId}`)

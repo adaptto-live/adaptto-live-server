@@ -25,6 +25,7 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
       user.username = username
       user.admin = admin
       user.blocked = blocked
+      user.updated = new Date()
       await user.save()
       if (userNameChanged) {
         await changeUsernameInAllDocuments(id, username)

@@ -19,7 +19,7 @@ export async function handleCurrentTalk(socket : Socket<ClientToServerEvents,Ser
     socket.on('currentTalk', async (talkId: string) => {
       await CurrentTalkModel.deleteMany().exec()
       log.debug(`Set current talk to ${talkId}`)
-      await CurrentTalkModel.create({_id: uuidv4(), talkId})
+      await CurrentTalkModel.create({_id: uuidv4(), talkId, created: new Date()})
       socket.broadcast.emit('currentTalk', talkId)
     })
   }

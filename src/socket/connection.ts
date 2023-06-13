@@ -20,7 +20,7 @@ export async function handleConnection(socket : Socket<ClientToServerEvents,Serv
   else {
     userid = uuidv4()
     admin = false
-    await UserModel.create({_id:userid, username})
+    await UserModel.create({_id:userid, username, created: new Date()})
     log.debug(`User connected (new user): ${username}`)
   }
   socket.emit('login', userid, admin)

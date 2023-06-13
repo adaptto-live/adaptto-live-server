@@ -10,6 +10,7 @@ const LoginCodeSchema = new mongoose.Schema<LoginCode>({
   userid: { type: String, required:false, index:true },
   used: { type: Date, required:false }
 })
+LoginCodeSchema.index({code: 1, userid: 1})
 export const LoginCodeModel = mongoose.model<LoginCode>('loginCode', LoginCodeSchema)
 
 export interface User {

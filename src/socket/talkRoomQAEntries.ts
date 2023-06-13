@@ -1,10 +1,9 @@
-import { Server, Socket } from 'socket.io'
+import { Socket } from 'socket.io'
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from './socket.types'
 import { QAEntryModel, UserModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 
-export async function handleTalkRoomQAEntries(io : Server<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
+export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { userid, username, admin } = socket.data
   if (!userid || !username) {
     return

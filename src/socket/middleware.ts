@@ -39,11 +39,14 @@ export async function middleware(
   }
 
   // check logincode to register a new user
-  const loginCode = await LoginCodeModel.findOne({code}).exec()
+  const loginCode = await LoginCodeModel.findOne({code,userid:null}).exec()
   if (loginCode) {
     // create new user for valid login code
     const userid = uuidv4()
     await UserModel.create({_id:userid, code, username, created: new Date()})
+    loginCode.userid = userid
+    loginCode.used = new Date()
+    await loginCode.save()
     log.debug(`Registered new user: ${username} for code ${code}`)
 
     socket.data.userid = userid

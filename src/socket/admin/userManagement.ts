@@ -12,10 +12,13 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
     return
   }
 
-  socket.on('adminGetAllUsers', async () => {
-    log.debug('Admin: get all users')
-    await emitAllUsers(socket)
-  })
+  socket.on('adminGetUsers', async () => {
+    log.debug('Admin: get users')
+    const users = await UserModel.find().sort({username:1}).exec()
+    socket.emit('adminUsers', users.map(user => 
+        ({id: user.id, username: user.username, admin: user.admin, blocked: user.blocked,
+          created: user.created, updated: user.updated})))
+   })
 
   socket.on('adminUpdateUser', async (id, username, admin, blocked) => {
     log.debug(`Admin: update user ${username}`)
@@ -33,10 +36,4 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
     }
   })
 
-}
-
-async function emitAllUsers(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
-  const users = await UserModel.find().sort({username:1}).exec()
-  socket.emit('adminAllUsers', users.map(user => 
-      ({id: user.id, username: user.username, admin: user.admin, blocked: user.blocked})))
 }

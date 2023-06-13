@@ -1,5 +1,17 @@
 import mongoose from 'mongoose'
 
+export interface LoginCode {
+  code: string
+  userid: string
+  used: Date
+}
+const LoginCodeSchema = new mongoose.Schema<LoginCode>({
+  code: { type: String, required:true, index:true },
+  userid: { type: String, required:false, index:true },
+  used: { type: Date, required:false }
+})
+export const LoginCodeModel = mongoose.model<LoginCode>('loginCode', LoginCodeSchema)
+
 export interface User {
   _id: string
   username: string

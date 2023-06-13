@@ -13,7 +13,7 @@ export async function handleAdminLoginCodeManagement(socket : Socket<ClientToSer
 
   socket.on('adminGetLoginCodes', async () => {
     log.debug('Admin: get login codes')
-    const codes = await LoginCodeModel.find().sort({code:1}).exec()
+    const codes = await LoginCodeModel.find().sort({used:-1, code:1}).exec()
     socket.emit('adminLoginCodes', codes.map(code => 
         ({code: code.code, userid: code.userid, used: code.used})))
   })

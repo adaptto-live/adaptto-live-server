@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io'
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from './socket.types'
-import { QAEntryModel, UserModel } from '../repository/mongodb.schema'
+import { QAEntry, QAEntryModel, UserModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 
 export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
@@ -21,15 +21,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     log.debug(`User ${username} updated Q&A entry ${id}: ${text}`)
     const message = await QAEntryModel.findById(id).exec()
     if (message != null && ((message.userid == userid) || admin)) {
-      if (anonymous) {
-        message.username = undefined
-      }
-      else {
-        const originalPoster = await UserModel.findOne({_id:message.userid}).exec()
-        if (originalPoster) {
-          message.username = originalPoster.username
-        }
-      }
+      message.username = await getUsernameForUpdate(message.userid, anonymous)
       message.text = text
       await message.save()
       socket.in(message.talkId).emit('qaEntryUpdate', id, message.date, message.userid, message.username, message.text)
@@ -44,4 +36,14 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     }
   })
 
+}
+
+async function getUsernameForUpdate(userid: string, anonymous?: boolean) : Promise<string|undefined> {
+  if (!anonymous) {
+    const originalPoster = await UserModel.findOne({_id:userid}).exec()
+    if (originalPoster) {
+      return originalPoster.username
+    }
+  }
+  return undefined
 }

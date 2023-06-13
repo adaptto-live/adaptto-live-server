@@ -1,5 +1,5 @@
 config:
-  target: "http://localhost:3030"
+  target: http://localhost:3030
   phases:
     - duration: 300     # Duration of phase in sec
       arrivalRate: 5    # Number of new users per second
@@ -16,12 +16,10 @@ config:
     - path: ../payload/talks.csv
       fields:
       - randomTalkId
-      skipHeader: true
     # Use first talk in list as current talk
     - path: ../payload/talks.csv
       fields:
       - currentTalkId
-      skipHeader: true
       order: sequence
     # List of chat messages to randomly pick from
     - path: ../payload/messages.csv

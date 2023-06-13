@@ -13,9 +13,18 @@ export async function handleAdminLoginCodeManagement(socket : Socket<ClientToSer
 
   socket.on('adminGetLoginCodes', async () => {
     log.debug('Admin: get login codes')
-    const codes = await LoginCodeModel.find().sort({used:-1, code:1}).exec()
+    const codes = await LoginCodeModel.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userid',
+          foreignField: '_id',
+          as: 'user'
+        }
+      }
+    ]).sort({used:-1, code:1}).exec()
     socket.emit('adminLoginCodes', codes.map(code => 
-        ({code: code.code, userid: code.userid, used: code.used})))
+        ({code: code.code, userid: code.userid, username: code.user[0]?.username, used: code.used})))
   })
 
 }

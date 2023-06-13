@@ -9,7 +9,7 @@ export interface ServerToClientEvents {
   qaEntry: (id: string, date: Date, userid: string, username: string|undefined, text: string) => void
   qaEntryUpdate: (id: string, date: Date, userid: string, username: string|undefined, text: string) => void
   qaEntryDelete: (id: string) => void
-  adminLoginCodes: (loginCodes: {code: string, userid: string, used: Date}[]) => void
+  adminLoginCodes: (loginCodes: {code: string, userid: string, username:string, used: Date}[]) => void
   adminUsers: (users: {id: string, code: string, username: string, admin: boolean, blocked: boolean, created: Date, updated: Date}[]) => void
   adminTalkRatings: (ratings: {talkId: string, averageRating: number, participants: number, comments: string[]}[]) => void
   adminStatistics: (numLoginCodes: number, numUsers: number, numTalkRatings: number, numMessages: number, numQAEntries: number) => void

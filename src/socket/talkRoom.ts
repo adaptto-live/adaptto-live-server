@@ -2,15 +2,16 @@ import { Server, Socket } from 'socket.io'
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from './socket.types'
 import { MessageModel, QAEntryModel, UserModel } from '../repository/mongodb.schema'
 import log from '../util/log'
-import AuthenticationInfo from '../util/AuthenticationInfo'
 import RoomUsers from '../util/RoomUsers'
 
 const roomUsers = new RoomUsers()
 
 export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    authenticationInfo : AuthenticationInfo) {
-  const { userid, username, admin } = authenticationInfo
+    socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
+  const { userid, username, admin } = socket.data
+  if (!userid || !username) {
+    return
+  }
 
   // join room for messages and Q&A entries
   socket.on('roomEnter', async (talkId: string) => {

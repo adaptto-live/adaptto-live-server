@@ -3,11 +3,9 @@ import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketDa
 import { TalkRatingModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import { v4 as uuidv4 } from 'uuid'
-import AuthenticationInfo from '../util/AuthenticationInfo'
 
-export async function handleTalkRatings(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    authenticationInfo : AuthenticationInfo) {
-  const { userid, username } = authenticationInfo
+export async function handleTalkRatings(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
+  const { userid, username } = socket.data
 
   // emit all existing talk ratings on login
   ;(await TalkRatingModel.find({userid}).exec()).forEach(doc => {

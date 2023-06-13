@@ -1,14 +1,13 @@
 import { Socket } from 'socket.io'
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from '../socket.types'
 import log from '../../util/log'
-import AuthenticationInfo from '../../util/AuthenticationInfo'
 import { MessageModel, QAEntryModel, TalkRatingModel, UserModel } from '../../repository/mongodb.schema'
 
-export async function handleAdminStatistics(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    authenticationInfo : AuthenticationInfo) {
+export async function handleAdminStatistics(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
+  const { admin } = socket.data
 
   // admin-only operations
-  if (!authenticationInfo.admin) {
+  if (!admin) {
     return
   }
 

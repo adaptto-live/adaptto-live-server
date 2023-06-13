@@ -1,14 +1,14 @@
 import { Socket } from 'socket.io'
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from '../socket.types'
 import log from '../../util/log'
-import AuthenticationInfo from '../../util/AuthenticationInfo'
 import { UserModel, MessageModel, QAEntryModel } from '../../repository/mongodb.schema'
+import changeUsernameInAllDocuments from '../../util/changeUsernameInAllDocuments'
 
-export async function handleAdminUserManagement(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
-    authenticationInfo : AuthenticationInfo) {
+export async function handleAdminUserManagement(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
+  const { admin } = socket.data
 
   // admin-only operations
-  if (!authenticationInfo.admin) {
+  if (!admin) {
     return
   }
 
@@ -39,9 +39,4 @@ async function emitAllUsers(socket : Socket<ClientToServerEvents,ServerToClientE
   const users = await UserModel.find().sort({username:1}).exec()
   socket.emit('adminAllUsers', users.map(user => 
       ({id: user.id, username: user.username, admin: user.admin, blocked: user.blocked})))
-}
-
-async function changeUsernameInAllDocuments(userid: string, username: string) {
-  await MessageModel.updateMany({userid}, {username}).exec()
-  await QAEntryModel.updateMany({userid, username:{ $ne: null }}, {username}).exec()
 }

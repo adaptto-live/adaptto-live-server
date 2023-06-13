@@ -1,29 +1,29 @@
 import { Socket } from 'socket.io'
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from './socket.types'
-import { UserModel } from '../repository/mongodb.schema'
 import log from '../util/log'
-import { v4 as uuidv4 } from 'uuid'
-import AuthenticationInfo from '../util/AuthenticationInfo'
+import { UserModel } from '../repository/mongodb.schema'
+import changeUsernameInAllDocuments from '../util/changeUsernameInAllDocuments'
 
-export async function handleConnection(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) : Promise<AuthenticationInfo> {
+export async function handleConnection(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
+  const { userid, username, admin, usernameChanged } = socket.data
+  if (!userid || !username) {
+    return
+  }
 
-  // check/create user
-  const username = socket.handshake.auth.username
-  let userid : string
-  let admin : boolean
-  const existingUser = await UserModel.findOne({username}).exec()
-  if (existingUser) {
-    userid = existingUser._id
-    admin = existingUser.admin
-    log.debug(`User connected: ${username}`)
+  // check for changed user name
+  if (usernameChanged) {
+    log.debug(`User name change detected for ${userid}: ${username}`)
+    const user = await UserModel.findOne({_id:userid}).exec()
+    if (user) {
+      user.username = username
+      user.updated = new Date()
+      await user.save()
+      await changeUsernameInAllDocuments(userid, username)
+    }
   }
-  else {
-    userid = uuidv4()
-    admin = false
-    await UserModel.create({_id:userid, username, created: new Date()})
-    log.debug(`User connected (new user): ${username}`)
-  }
-  socket.emit('login', userid, admin)
+
+  log.debug(`User connected: ${username}`)
+  socket.emit('login', userid, admin ?? false)
 
   // user disconnects
   socket.on('disconnect', () => {

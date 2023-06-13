@@ -14,6 +14,7 @@ export const LoginCodeModel = mongoose.model<LoginCode>('loginCode', LoginCodeSc
 
 export interface User {
   _id: string
+  code: string
   username: string
   admin: boolean
   blocked: boolean
@@ -22,10 +23,11 @@ export interface User {
 }
 const UserSchema = new mongoose.Schema<User>({
   _id: { type: String, required:true },
+  code: { type: String, required:true, index:true },
   username: { type: String, required:true, index:true },
   admin: { type: Boolean, required:false },
   blocked: { type: Boolean, required:false },
-  created: { type: Date, required:false },
+  created: { type: Date, required:true },
   updated: { type: Date, required:false }
 })
 export const UserModel = mongoose.model<User>('user', UserSchema)
@@ -38,7 +40,7 @@ interface CurrentTalk {
 const CurrentTalkSchema = new mongoose.Schema<CurrentTalk>({
   _id: { type: String, required:true },
   talkId: { type: String, required:true },
-  created: { type: Date, required:false }
+  created: { type: Date, required:true }
 })
 export const CurrentTalkModel = mongoose.model<CurrentTalk>('currentTalk', CurrentTalkSchema)
 
@@ -56,7 +58,7 @@ const TalkRatingSchema = new mongoose.Schema<TalkRating>({
   userid: { type: String, required:true, index:true },
   rating: { type: Number, required:true },
   comment: { type: String, required:false },
-  created: { type: Date, required:false }
+  created: { type: Date, required:true }
 })
 export const TalkRatingModel = mongoose.model<TalkRating>('talk-rating', TalkRatingSchema)
 

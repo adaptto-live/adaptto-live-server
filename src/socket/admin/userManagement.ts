@@ -22,7 +22,7 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
 
   socket.on('adminUpdateUser', async (id, username, admin, blocked) => {
     log.debug(`Admin: update user ${username}`)
-    const user = await UserModel.findOne({_id:id}).exec()
+    const user = await UserModel.findOne({_id:id}).sort({username:1}).exec()
     if (user) {
       const userNameChanged = user.username != username
       user.username = username

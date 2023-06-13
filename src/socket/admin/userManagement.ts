@@ -36,7 +36,7 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
 }
 
 async function emitAllUsers(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
-  const users = await UserModel.find().sort({username:1,_id:1}).exec()
+  const users = await UserModel.find().sort({username:1}).exec()
   socket.emit('adminAllUsers', users.map(user => 
       ({id: user.id, username: user.username, admin: user.admin, blocked: user.blocked})))
 }

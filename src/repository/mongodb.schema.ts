@@ -79,7 +79,8 @@ const QAEntrySchema = new mongoose.Schema<QAEntry>({
   talkId: { type: String, required:true, index:true },
   date: { type: Date, default: Date.now, index:true },
   userid: { type: String, required:true, index:true },
-  username: { type: String, required:false, index:true },
+  username: { type: String, required:false },
   text: { type: String, required:true }
 })
+QAEntrySchema.index({userid: 1, username: 1})
 export const QAEntryModel = mongoose.model<QAEntry>('qa-entry', QAEntrySchema)

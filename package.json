@@ -6,7 +6,7 @@
     "dev": "nodemon src/index.ts | pino-pretty",
     "clean": "rimraf ./build",
     "build": "tsc",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
     "dotenv": "^16.1.4",

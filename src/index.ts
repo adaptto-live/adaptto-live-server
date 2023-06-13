@@ -14,6 +14,8 @@ import { handleAdminUserManagement } from './socket/admin/userManagement'
 import { handleAdminTalkRatings } from './socket/admin/talkRatings'
 import { handleAdminStatistics } from './socket/admin/statistics'
 import { version} from '../package.json'
+import { handleTalkRoomMessages } from './socket/talkRoomMessages'
+import { handleTalkRoomQAEntries } from './socket/talkRoomQAEntries'
 
 // read env configuration
 config()
@@ -41,6 +43,8 @@ io.on('connection', async (socket) => {
   await handleCurrentTalk(socket)
   await handleTalkRatings(socket)
   await handleTalkRoom(io, socket)
+  await handleTalkRoomMessages(io, socket)
+  await handleTalkRoomQAEntries(io, socket)
   await handleAdminUserManagement(socket)
   await handleAdminTalkRatings(socket)
   await handleAdminStatistics(socket)

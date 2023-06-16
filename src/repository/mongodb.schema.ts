@@ -88,6 +88,7 @@ export interface QAEntry {
   userid: string
   username?: string
   text: string
+  replyTo?: string
 }
 const QAEntrySchema = new mongoose.Schema<QAEntry>({
   _id: { type: String, required:true },
@@ -95,7 +96,8 @@ const QAEntrySchema = new mongoose.Schema<QAEntry>({
   date: { type: Date, default: Date.now, index:true },
   userid: { type: String, required:true, index:true },
   username: { type: String, required:false },
-  text: { type: String, required:true }
+  text: { type: String, required:true },
+  replyTo: { type: String, required:false, index:true }
 })
 QAEntrySchema.index({userid: 1, username: 1})
 export const QAEntryModel = mongoose.model<QAEntry>('qa-entry', QAEntrySchema)

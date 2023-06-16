@@ -6,7 +6,7 @@ export interface ServerToClientEvents {
   message: (id: string, date: Date, userid: string, username: string, text: string) => void
   messageUpdate: (id: string, date: Date, userid: string, username: string, text: string) => void
   messageDelete: (id: string) => void
-  qaEntry: (id: string, date: Date, userid: string, username: string|undefined, text: string) => void
+  qaEntry: (id: string, date: Date, userid: string, username: string|undefined, text: string, replyTo?: string) => void
   qaEntryUpdate: (id: string, date: Date, userid: string, username: string|undefined, text: string) => void
   qaEntryDelete: (id: string) => void
   adminLoginCodes: (loginCodes: {code: string, userid: string, username:string, used: Date}[]) => void
@@ -23,7 +23,7 @@ export interface ClientToServerEvents {
   message: (id: string, talkId: string, text: string) => void
   messageUpdate: (id: string, text: string) => void
   messageDelete: (id: string) => void
-  qaEntry: (id: string, talkId: string, text: string, anonymous?: boolean) => void
+  qaEntry: (id: string, talkId: string, text: string, anonymous?: boolean, replyTo?: string) => void
   qaEntryUpdate: (id: string, text: string, anonymous?: boolean) => void
   qaEntryDelete: (id: string) => void
   adminGetLoginCodes: () => void

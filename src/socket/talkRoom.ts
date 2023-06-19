@@ -26,7 +26,7 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
       socket.emit('message', doc.id, doc.date, doc.userid, doc.username, doc.text)
     })
     ;(await QAEntryModel.find({talkId}).sort({date:1}).exec()).forEach(doc => {
-      socket.emit('qaEntry', doc.id, doc.date, doc.userid, doc.username, doc.text)
+      socket.emit('qaEntry', doc.id, doc.date, doc.userid, doc.username, doc.text, doc.replyTo)
     })
   })
   socket.on('roomLeave', async (talkId: string) => {

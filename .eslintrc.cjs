@@ -12,7 +12,6 @@ module.exports = {
   },
   ignorePatterns: [
     "ecosystem.config.js",
-    "build/**",
     "testing/**"
   ]
 }

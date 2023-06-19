@@ -10,12 +10,12 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   }
 
   // CRUD handling for Q&A entries
-  socket.on('qaEntry', async (id: string, talkId: string, text: string, anonymous?: boolean) => {
+  socket.on('qaEntry', async (id: string, talkId: string, text: string, anonymous?: boolean, replyTo?: string) => {
     log.debug(`User ${username} created Q&A entry in ${talkId}: ${text}`)
     const date = new Date()
     const qaEntryUsername = anonymous ? undefined : username
-    await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text })
-    socket.in(talkId).emit('qaEntry', id, date, userid, qaEntryUsername, text)
+    await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text, replyTo })
+    socket.in(talkId).emit('qaEntry', id, date, userid, qaEntryUsername, text, replyTo)
   })
   socket.on('qaEntryUpdate', async (id: string, text: string, anonymous?: boolean) => {
     log.debug(`User ${username} updated Q&A entry ${id}: ${text}`)
@@ -31,6 +31,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     log.debug(`User ${username} deleted Q&A entry ${id}`)
     const message = await QAEntryModel.findById(id).exec()
     if (message != null && ((message.userid == userid) || admin)) {
+      await QAEntryModel.deleteMany({replyTo:id}).exec()
       await message.deleteOne()
       socket.in(message.talkId).emit('qaEntryDelete', id)
     }

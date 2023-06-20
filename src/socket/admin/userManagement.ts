@@ -30,6 +30,9 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
       user.blocked = blocked
       user.updated = new Date()
       await user.save()
+      if (blocked) {
+        socket.broadcast.emit('userBlocked', id)
+      }
       if (userNameChanged) {
         await changeUsernameInAllDocuments(id, username)
       }

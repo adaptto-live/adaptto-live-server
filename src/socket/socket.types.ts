@@ -13,6 +13,7 @@ export interface ServerToClientEvents {
   adminUsers: (users: {id: string, code: string, username: string, admin: boolean, blocked: boolean, created: Date, updated: Date}[]) => void
   adminTalkRatings: (ratings: {talkId: string, averageRating: number, participants: number, comments: string[]}[]) => void
   adminStatistics: (numLoginCodes: number, numUsers: number, numTalkRatings: number, numMessages: number, numQAEntries: number) => void
+  userBlocked: (userid: string) => void
 }
 
 export interface ClientToServerEvents {

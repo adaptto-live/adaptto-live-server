@@ -15,8 +15,8 @@ export async function middleware(
   // validate presence of valid login code and username
   const { error } = loginTokenUsernameValidation.validate(socket.handshake.auth)
   if (error) {
-    log.debug(`Reject request with invalid authorization: ${error}`)
-    next(new Error(`Authorization rejected: ${error}`))
+    log.debug(`Reject request with invalid authorization: ${error.message}`)
+    next(new Error(`Authorization rejected: ${error.message}`))
     return
   }
   const { code, username } = socket.handshake.auth

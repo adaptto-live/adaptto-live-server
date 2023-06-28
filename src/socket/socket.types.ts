@@ -1,7 +1,7 @@
 export interface ServerToClientEvents {
   login: (userid: string, admin: boolean) => void
   currentTalk: (talkId: string) => void
-  talkRating: (talkId: string, rating?: number, comment?: string) => void
+  talkRatings: (talkRatings: TalkRating[]) => void
   roomUsers: (usernames : string[]) => void
   message: (id: string, date: Date, userid: string, username: string, text: string) => void
   messageUpdate: (id: string, date: Date, userid: string, username: string, text: string) => void
@@ -18,7 +18,7 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   currentTalk: (talkId: string) => void
-  talkRating: (talkId: string, rating?: number, comment? : string) => void
+  talkRating: (talkRating: TalkRating, callback: (result: OperationResult) => void) => void
   roomEnter: (talkId: string) => void
   roomLeave: (talkId: string) => void
   message: (id: string, talkId: string, text: string) => void
@@ -32,4 +32,15 @@ export interface ClientToServerEvents {
   adminUpdateUser: (id: string, username: string, admin: boolean, blocked: boolean) => void
   adminGetTalkRatings: () => void
   adminGetStatistics: () => void
+}
+
+export interface OperationResult {
+  success: boolean
+  error?: string
+}
+
+export interface TalkRating {
+  talkId: string
+  rating?: number
+  comment? : string
 }

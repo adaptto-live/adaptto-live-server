@@ -55,6 +55,9 @@ config:
     - path: ../payload/ratings.csv
       fields:
       - rating1
+    - path: ../payload/ratings.csv
+      fields:
+      - rating2
 
 scenarios:
   - name: Discuss, Q&A and Rate
@@ -79,7 +82,10 @@ scenarios:
       - function: generateUUID
       - emit: ["message", "{{uuid}}", "{{currentTalkId}}", "{{message4}}"]
       - think: 1
-      - emit: ["talkRating", "{{currentTalkId}}", "{{rating1}}", "{{message5}}"]
+      - emit: ["talkRating", {talkId: "{{currentTalkId}}", rating: "{{rating1}}", comment: "{{message5}}"}]
+        acknowledge:
+          match:
+            args: true
       - think: 1
       - emit: ["roomLeave", "{{currentTalkId}}"]
       - think: 1
@@ -88,6 +94,9 @@ scenarios:
       - function: generateUUID
       - emit: ["message", "{{uuid}}", "{{randomTalkId}}", "{{message6}}"]
       - think: 1
-      - emit: ["talkRating", "{{randomTalkId}}", "{{rating2}}", "{{message7}}"]
+      - emit: ["talkRating", {talkId: "{{randomTalkId}}", rating: "{{rating2}}", comment: "{{message7}}"}]
+        acknowledge:
+          match:
+            args: true
       - think: 1
       - emit: ["roomLeave", "{{randomTalkId}}"]

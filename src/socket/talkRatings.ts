@@ -1,5 +1,6 @@
 import { Socket } from 'socket.io'
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from './socket.types'
+import { ClientToServerEvents, ServerToClientEvents } from './socket.types'
+import { InterServerEvents, SocketData } from './socket.server.types'
 import { TalkRatingModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import { v4 as uuidv4 } from 'uuid'

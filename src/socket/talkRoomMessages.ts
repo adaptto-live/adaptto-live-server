@@ -1,5 +1,6 @@
 import { Socket } from 'socket.io'
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from './socket.types'
+import { ClientToServerEvents, ServerToClientEvents } from './socket.types'
+import { InterServerEvents, SocketData } from './socket.server.types'
 import { MessageModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 

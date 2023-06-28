@@ -1,6 +1,7 @@
 import { Socket } from 'socket.io'
 import log from '../util/log'
-import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from './socket.types'
+import { ClientToServerEvents, ServerToClientEvents } from './socket.types'
+import { InterServerEvents, SocketData } from './socket.server.types'
 import { ExtendedError } from 'socket.io/dist/namespace'
 import { LoginCodeModel, UserModel } from '../repository/mongodb.schema'
 import { v4 as uuidv4 } from 'uuid'

@@ -3,33 +3,33 @@ export interface ServerToClientEvents {
   currentTalk: (talkId: string) => void
   talkRatings: (talkRatings: TalkRating[]) => void
   roomUsers: (usernames : string[]) => void
-  message: (id: string, date: Date, userid: string, username: string, text: string) => void
-  messageUpdate: (id: string, date: Date, userid: string, username: string, text: string) => void
+  messages: (messages: MessageFromServer[]) => void
+  messageUpdate: (message: MessageFromServer) => void
   messageDelete: (id: string) => void
-  qaEntry: (id: string, date: Date, userid: string, username: string|undefined, text: string, replyTo?: string) => void
-  qaEntryUpdate: (id: string, date: Date, userid: string, username: string|undefined, text: string) => void
+  qaEntries: (qaEntries: QAEntryFromServer[]) => void
+  qaEntryUpdate: (qaEntry: QAEntryFromServer) => void
   qaEntryDelete: (id: string) => void
-  adminLoginCodes: (loginCodes: {code: string, userid: string, username:string, used: Date}[]) => void
-  adminUsers: (users: {id: string, code: string, username: string, admin: boolean, blocked: boolean, created: Date, updated: Date}[]) => void
-  adminTalkRatings: (ratings: {talkId: string, averageRating: number, participants: number, comments: string[]}[]) => void
-  adminStatistics: (numLoginCodes: number, numUsers: number, numTalkRatings: number, numMessages: number, numQAEntries: number) => void
+  adminLoginCodes: (loginCodes: LoginCode[]) => void
+  adminUsers: (users: User[]) => void
+  adminTalkRatings: (ratings: AverageTalkRating[]) => void
+  adminStatistics: (statistics: Statistics) => void
   userBlocked: (userid: string) => void
 }
 
 export interface ClientToServerEvents {
-  currentTalk: (talkId: string) => void
+  currentTalk: (talkId: string, callback: (result: OperationResult) => void) => void
   talkRating: (talkRating: TalkRating, callback: (result: OperationResult) => void) => void
   roomEnter: (talkId: string) => void
   roomLeave: (talkId: string) => void
-  message: (id: string, talkId: string, text: string) => void
-  messageUpdate: (id: string, text: string) => void
-  messageDelete: (id: string) => void
-  qaEntry: (id: string, talkId: string, text: string, anonymous?: boolean, replyTo?: string) => void
-  qaEntryUpdate: (id: string, text: string, anonymous?: boolean) => void
-  qaEntryDelete: (id: string) => void
+  message: (message: MessageToServer, callback: (result: OperationResult) => void) => void
+  messageUpdate: (message: MessageToServer, callback: (result: OperationResult) => void) => void
+  messageDelete: (id: string, callback: (result: OperationResult) => void) => void
+  qaEntry: (qaEntry: QAEntryToServer, callback: (result: OperationResult) => void) => void
+  qaEntryUpdate: (qaEntry: QAEntryToServer, callback: (result: OperationResult) => void) => void
+  qaEntryDelete: (id: string, callback: (result: OperationResult) => void) => void
   adminGetLoginCodes: () => void
   adminGetUsers: () => void
-  adminUpdateUser: (id: string, username: string, admin: boolean, blocked: boolean) => void
+  adminUpdateUser: (user: UserUpdate, callback: (result: OperationResult) => void) => void
   adminGetTalkRatings: () => void
   adminGetStatistics: () => void
 }
@@ -43,4 +43,74 @@ export interface TalkRating {
   talkId: string
   rating?: number
   comment? : string
+}
+
+export interface MessageToServer {
+  id: string
+  talkId: string
+  text: string
+}
+
+export interface MessageFromServer {
+  id: string
+  date: Date
+  userid: string
+  username: string
+  text: string
+}
+
+export interface QAEntryToServer {
+  id: string
+  talkId: string
+  text: string
+  anonymous?: boolean
+  replyTo?: string
+}
+
+export interface QAEntryFromServer {
+  id: string
+  date: Date
+  userid: string
+  username?: string
+  text: string
+  replyTo?: string
+}
+
+export interface LoginCode {
+  code: string
+  userid: string
+  username:string
+  used: Date
+}
+
+export interface User {
+  id: string
+  code: string
+  username: string
+  admin: boolean
+  blocked: boolean
+  created: Date
+  updated: Date
+}
+
+export interface UserUpdate {
+  id: string
+  username: string
+  admin: boolean
+  blocked: boolean
+}
+
+export interface AverageTalkRating {
+  talkId: string
+  averageRating: number
+  participants: number
+  comments: string[]
+}
+
+export interface Statistics {
+  numLoginCodes: number
+  numUsers: number
+  numTalkRatings: number
+  numMessages: number
+  numQAEntries: number
 }

@@ -12,14 +12,16 @@ export async function handleTalkRatings(socket : Socket<ClientToServerEvents,Ser
   // emit all existing talk ratings on login
   const talkRatings = (await TalkRatingModel.find({userid}).exec())
       .map(({ talkId, rating, comment }) => ({ talkId, rating, comment}))
-  socket.emit('talkRatings', talkRatings)
+  if (talkRatings.length > 0) {
+    socket.emit('talkRatings', talkRatings)
+  }
 
   // store talk ratings
-  socket.on('talkRating', async (talkRating, validationCallback) => {
+  socket.on('talkRating', async (talkRating, callback) => {
     // validate input
     const { error } = talkRatingValidation.validate(talkRating)
     if (error) {
-      validationCallback({success:false, error:error.message})
+      callback({success:false, error:error.message})
       return
     }
 
@@ -32,7 +34,7 @@ export async function handleTalkRatings(socket : Socket<ClientToServerEvents,Ser
     else {
       log.debug(`User ${username} removed talk rating for ${talkId}`)
     }
-    validationCallback({success:true})
+    callback({success:true})
   })
 
 }

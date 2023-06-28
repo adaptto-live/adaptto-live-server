@@ -23,12 +23,16 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
     io.to(talkId).emit('roomUsers', roomUsers.joinsRoom(talkId, socket, username))
 
     // emit all existing messages and Q&A entries
-    ;(await MessageModel.find({talkId}).sort({date:1}).exec()).forEach(doc => {
-      socket.emit('message', doc.id, doc.date, doc.userid, doc.username, doc.text)
-    })
-    ;(await QAEntryModel.find({talkId}).sort({date:1}).exec()).forEach(doc => {
-      socket.emit('qaEntry', doc.id, doc.date, doc.userid, doc.username, doc.text, doc.replyTo)
-    })
+    const messages = (await MessageModel.find({talkId}).sort({date:1}).exec())
+      .map(({id, date, userid, username, text}) => ({id, date, userid, username, text}))
+    if (messages.length > 0) {
+      socket.emit('messages', messages)
+    }
+    const qaEntries = (await QAEntryModel.find({talkId}).sort({date:1}).exec())
+      .map(({id, date, userid, username, text, replyTo}) => ({id, date, userid, username, text, replyTo}))
+    if (qaEntries.length > 0) {
+      socket.emit('qaEntries', qaEntries)
+    }
   })
   socket.on('roomLeave', async (talkId: string) => {
     log.debug(`User ${username} leaves room ${talkId}`)

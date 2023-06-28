@@ -11,30 +11,50 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   }
 
   // CRUD handling for Q&A entries
-  socket.on('qaEntry', async (id: string, talkId: string, text: string, anonymous?: boolean, replyTo?: string) => {
+  socket.on('qaEntry', async (newQaEntry, callback) => {
+    // TODO: validate
+
+    const { id, talkId, text, anonymous, replyTo } = newQaEntry
     log.debug(`User ${username} created Q&A entry in ${talkId}: ${text}`)
     const date = new Date()
     const qaEntryUsername = anonymous ? undefined : username
     await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text, replyTo })
-    socket.in(talkId).emit('qaEntry', id, date, userid, qaEntryUsername, text, replyTo)
+    callback({success: true})
+    socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, replyTo}])
   })
-  socket.on('qaEntryUpdate', async (id: string, text: string, anonymous?: boolean) => {
+
+  socket.on('qaEntryUpdate', async (updatedQaEntry, callback) => {
+    // TODO: validate
+
+    const { id, text, anonymous } = updatedQaEntry
     log.debug(`User ${username} updated Q&A entry ${id}: ${text}`)
     const message = await QAEntryModel.findById(id).exec()
     if (message != null && ((message.userid == userid) || admin)) {
       message.username = await getUsernameForUpdate(message.userid, anonymous)
       message.text = text
       await message.save()
-      socket.in(message.talkId).emit('qaEntryUpdate', id, message.date, message.userid, message.username, message.text)
+      callback({success: true})
+      socket.in(message.talkId).emit('qaEntryUpdate', 
+        {id, date: message.date, userid: message.userid, username: message.username, text: message.text})
+    }
+    else {
+      callback({success: false, error: `QA entry ${id} not found or not allowed to update.`})
     }
   })
-  socket.on('qaEntryDelete', async (id: string) => {
+
+  socket.on('qaEntryDelete', async (id, callback) => {
+    // TODO: validate
+
     log.debug(`User ${username} deleted Q&A entry ${id}`)
     const message = await QAEntryModel.findById(id).exec()
     if (message != null && ((message.userid == userid) || admin)) {
       await QAEntryModel.deleteMany({replyTo:id}).exec()
       await message.deleteOne()
+      callback({success: true})
       socket.in(message.talkId).emit('qaEntryDelete', id)
+    }
+    else {
+      callback({success: false, error: `QA entry ${id} not found or not allowed to update.`})
     }
   })
 

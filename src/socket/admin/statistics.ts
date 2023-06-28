@@ -21,7 +21,7 @@ export async function handleAdminStatistics(socket : Socket<ClientToServerEvents
     const numMessages = await MessageModel.count().exec()
     const numQAEntries = await QAEntryModel.count().exec()
 
-    socket.emit('adminStatistics', numLoginCodes, numUsers, numTalkRatings, numMessages, numQAEntries)
+    socket.emit('adminStatistics', { numLoginCodes, numUsers, numTalkRatings, numMessages, numQAEntries })
   })
 
 }

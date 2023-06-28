@@ -21,7 +21,8 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
           created: user.created, updated: user.updated})))
    })
 
-  socket.on('adminUpdateUser', async (id, username, admin, blocked) => {
+  socket.on('adminUpdateUser', async ({id, username, admin, blocked}, callback) => {
+    // TODO: validate
     log.debug(`Admin: update user ${username}`)
     const user = await UserModel.findOne({_id:id}).sort({username:1}).exec()
     if (user) {
@@ -37,6 +38,10 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
       if (userNameChanged) {
         await changeUsernameInAllDocuments(id, username)
       }
+      callback({success:true})
+    }
+    else {
+      callback({success:false, error:`User ${id} not found.`})
     }
   })
 

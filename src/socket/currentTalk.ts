@@ -16,11 +16,13 @@ export async function handleCurrentTalk(socket : Socket<ClientToServerEvents,Ser
 
   // allow to change current talk (only admin)
   if (admin) {
-    socket.on('currentTalk', async (talkId: string) => {
+    socket.on('currentTalk', async (talkId, callback) => {
+      // TODO: validate
       await CurrentTalkModel.deleteMany().exec()
       log.info(`Set current talk to ${talkId}`)
       await CurrentTalkModel.create({_id: uuidv4(), talkId, created: new Date()})
       socket.broadcast.emit('currentTalk', talkId)
+      callback({success: true})
     })
   }
 

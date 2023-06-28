@@ -2,7 +2,7 @@ import Joi from 'joi';
 
 export const loginTokenUsernameValidation = Joi.object({
   username: Joi.string()
-      .regex(/^[\p{L}\.]+( [\p{L}\.]+)*$/u)
+      .regex(/^[\p{L}.]+( [\p{L}.]+)*$/u)
       .min(1)
       .max(30)      
       .required(),

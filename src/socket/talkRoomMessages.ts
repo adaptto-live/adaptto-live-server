@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io'
 import { ClientToServerEvents, MessageToServer, OperationResult, ServerToClientEvents } from './socket.types'
 import { InterServerEvents, SocketData } from './socket.server.types'
-import { Message, MessageModel } from '../repository/mongodb.schema'
+import { MessageModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import { messageToServerObject, uuidString } from '../repository/validation.schema'
 import isInputValid from '../util/isInputValid'

@@ -1,8 +1,11 @@
 import { Socket } from 'socket.io'
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from '../socket.types'
+import { ClientToServerEvents, ServerToClientEvents } from '../socket.types'
+import { InterServerEvents, SocketData } from '../socket.server.types'
 import log from '../../util/log'
 import { UserModel } from '../../repository/mongodb.schema'
 import changeUsernameInAllDocuments from '../../util/changeUsernameInAllDocuments'
+import { userObject } from '../../repository/validation.schema'
+import isInputValid from '../../util/isInputValid'
 
 export async function handleAdminUserManagement(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { admin } = socket.data
@@ -20,7 +23,12 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
           created: user.created, updated: user.updated})))
    })
 
-  socket.on('adminUpdateUser', async (id, username, admin, blocked) => {
+  socket.on('adminUpdateUser', async (userData, callback) => {
+    if (!isInputValid(userObject, userData, callback)) {
+      return
+    }
+ 
+    const {id, username, admin, blocked} = userData
     log.debug(`Admin: update user ${username}`)
     const user = await UserModel.findOne({_id:id}).sort({username:1}).exec()
     if (user) {
@@ -36,6 +44,10 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
       if (userNameChanged) {
         await changeUsernameInAllDocuments(id, username)
       }
+      callback({success:true})
+    }
+    else {
+      callback({success:false, error:`User ${id} not found.`})
     }
   })
 

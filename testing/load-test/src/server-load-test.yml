@@ -55,6 +55,9 @@ config:
     - path: ../payload/ratings.csv
       fields:
       - rating1
+    - path: ../payload/ratings.csv
+      fields:
+      - rating2
 
 scenarios:
   - name: Discuss, Q&A and Rate
@@ -68,26 +71,47 @@ scenarios:
       - emit: ["roomEnter", "{{currentTalkId}}"]
       - think: 1
       - function: generateUUID
-      - emit: ["message", "{{uuid}}", "{{currentTalkId}}", "{{message1}}"]
+      - emit: ["message", {id: "{{uuid}}", talkId: "{{currentTalkId}}", text: "{{message1}}"}]
+        acknowledge:
+          match:
+            args: true
       - think: 1
       - function: generateUUID
-      - emit: ["qaEntry", "{{uuid}}", "{{currentTalkId}}", "{{message2}}", false]
+      - emit: ["qaEntry", {id: "{{uuid}}", talkId: "{{currentTalkId}}", text: "{{message2}}", anonymous: false}]
+        acknowledge:
+          match:
+            args: true
       - think: 1
       - function: generateUUID
-      - emit: ["message", "{{uuid}}", "{{currentTalkId}}", "{{message3}}"]
+      - emit: ["message", {id: "{{uuid}}", talkId: "{{currentTalkId}}", text: "{{message3}}"}]
+        acknowledge:
+          match:
+            args: true
       - think: 2
       - function: generateUUID
-      - emit: ["message", "{{uuid}}", "{{currentTalkId}}", "{{message4}}"]
+      - emit: ["message", {id: "{{uuid}}", talkId: "{{currentTalkId}}", text: "{{message4}}"}]
+        acknowledge:
+          match:
+            args: true
       - think: 1
-      - emit: ["talkRating", "{{currentTalkId}}", "{{rating1}}", "{{message5}}"]
+      - emit: ["talkRating", {talkId: "{{currentTalkId}}", rating: "{{rating1}}", comment: "{{message5}}"}]
+        acknowledge:
+          match:
+            args: true
       - think: 1
       - emit: ["roomLeave", "{{currentTalkId}}"]
       - think: 1
       - emit: ["roomEnter", "{{randomTalkId}}"]
       - think: 1
       - function: generateUUID
-      - emit: ["message", "{{uuid}}", "{{randomTalkId}}", "{{message6}}"]
+      - emit: ["message", {id: "{{uuid}}", talkId: "{{randomTalkId}}", text: "{{message6}}"}]
+        acknowledge:
+          match:
+            args: true
       - think: 1
-      - emit: ["talkRating", "{{randomTalkId}}", "{{rating2}}", "{{message7}}"]
+      - emit: ["talkRating", {talkId: "{{randomTalkId}}", rating: "{{rating2}}", comment: "{{message7}}"}]
+        acknowledge:
+          match:
+            args: true
       - think: 1
       - emit: ["roomLeave", "{{randomTalkId}}"]

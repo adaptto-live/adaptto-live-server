@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io'
 import { ClientToServerEvents, OperationResult, QAEntryToServer, ServerToClientEvents } from './socket.types'
 import { InterServerEvents, SocketData } from './socket.server.types'
-import { QAEntryModel, UserModel } from '../repository/mongodb.schema'
+import { QAEntry, QAEntryModel, UserModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import { qaEntryToServerObject, uuidString } from '../repository/validation.schema'
 import isInputValid from '../util/isInputValid'
@@ -39,7 +39,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     const { id, text, anonymous } = updatedQaEntry
     log.debug(`User ${username} updated Q&A entry ${id}: ${text}`)
     const message = await QAEntryModel.findById(id).exec()
-    if (message != null && ((message.userid == userid) || admin)) {
+    if (message != null && isEditAllowed(message)) {
       message.username = await getUsernameForUpdate(message.userid, anonymous)
       message.text = text
       await message.save()
@@ -59,7 +59,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
 
     log.debug(`User ${username} deleted Q&A entry ${id}`)
     const message = await QAEntryModel.findById(id).exec()
-    if (message != null && ((message.userid == userid) || admin)) {
+    if (message != null && isEditAllowed(message)) {
       await QAEntryModel.deleteMany({replyTo:id}).exec()
       await message.deleteOne()
       callback({success: true})
@@ -68,6 +68,10 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     else {
       callback({success: false, error: `QA entry ${id} not found or not allowed to update.`})
     }
+  }
+
+  function isEditAllowed(message: QAEntry) : boolean {
+    return message != null && ((message.userid == userid) || admin) 
   }
 
 }

@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io'
 import { ClientToServerEvents, MessageToServer, OperationResult, ServerToClientEvents } from './socket.types'
 import { InterServerEvents, SocketData } from './socket.server.types'
-import { MessageModel } from '../repository/mongodb.schema'
+import { Message, MessageModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import { messageToServerObject, uuidString } from '../repository/validation.schema'
 import isInputValid from '../util/isInputValid'
@@ -38,7 +38,7 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
     const { id, text } = updatedMessage
     log.debug(`User ${username} updated message ${id}: ${text}`)
     const message = await MessageModel.findById(id).exec()
-    if (message != null && ((message.userid == userid) || admin)) {
+    if (message != null && isEditAllowed(message)) {
       message.text = text
       await message.save()
       callback({success: true})
@@ -57,7 +57,7 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
 
     log.debug(`User ${username} deleted message ${id}`)
     const message = await MessageModel.findById(id).exec()
-    if (message != null && ((message.userid == userid) || admin)) {
+    if (message != null && isEditAllowed(message)) {
       await message.deleteOne()
       callback({success: true})
       socket.in(message.talkId).emit('messageDelete', id)
@@ -65,6 +65,10 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
     else {
       callback({success: false, error: `Message ${id} not found or not allowed to update.`})
     }
+  }
+
+  function isEditAllowed(message: Message) : boolean {
+    return message != null && ((message.userid == userid) || admin) 
   }
 
 }

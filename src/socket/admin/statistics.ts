@@ -1,5 +1,6 @@
 import { Socket } from 'socket.io'
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from '../socket.types'
+import { ClientToServerEvents, ServerToClientEvents } from '../socket.types'
+import { InterServerEvents, SocketData } from '../socket.server.types'
 import log from '../../util/log'
 import { LoginCodeModel, MessageModel, QAEntryModel, TalkRatingModel, UserModel } from '../../repository/mongodb.schema'
 
@@ -20,7 +21,7 @@ export async function handleAdminStatistics(socket : Socket<ClientToServerEvents
     const numMessages = await MessageModel.count().exec()
     const numQAEntries = await QAEntryModel.count().exec()
 
-    socket.emit('adminStatistics', numLoginCodes, numUsers, numTalkRatings, numMessages, numQAEntries)
+    socket.emit('adminStatistics', { numLoginCodes, numUsers, numTalkRatings, numMessages, numQAEntries })
   })
 
 }

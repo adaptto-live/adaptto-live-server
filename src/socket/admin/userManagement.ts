@@ -4,6 +4,7 @@ import { InterServerEvents, SocketData } from '../socket.server.types'
 import log from '../../util/log'
 import { UserModel } from '../../repository/mongodb.schema'
 import changeUsernameInAllDocuments from '../../util/changeUsernameInAllDocuments'
+import { userObject } from '../../repository/validation.schema'
 
 export async function handleAdminUserManagement(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { admin } = socket.data
@@ -21,8 +22,15 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
           created: user.created, updated: user.updated})))
    })
 
-  socket.on('adminUpdateUser', async ({id, username, admin, blocked}, callback) => {
-    // TODO: validate
+  socket.on('adminUpdateUser', async (userData, callback) => {
+    // validate input
+    const { error } = userObject.validate(userData)
+    if (error) {
+      callback({success:false, error:error.message})
+      return
+    }
+ 
+    const {id, username, admin, blocked} = userData
     log.debug(`Admin: update user ${username}`)
     const user = await UserModel.findOne({_id:id}).sort({username:1}).exec()
     if (user) {

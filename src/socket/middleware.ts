@@ -5,7 +5,7 @@ import { InterServerEvents, SocketData } from './socket.server.types'
 import { ExtendedError } from 'socket.io/dist/namespace'
 import { LoginCodeModel, UserModel } from '../repository/mongodb.schema'
 import { v4 as uuidv4 } from 'uuid'
-import { loginTokenUsernameValidation } from '../repository/validation.schema'
+import { loginTokenUsernameObject } from '../repository/validation.schema'
 
 // this is executed when a new Websocket connection is created
 export async function middleware(
@@ -13,7 +13,7 @@ export async function middleware(
     next: (err?: ExtendedError) => void) {
 
   // validate presence of valid login code and username
-  const { error } = loginTokenUsernameValidation.validate(socket.handshake.auth)
+  const { error } = loginTokenUsernameObject.validate(socket.handshake.auth)
   if (error) {
     log.debug(`Reject request with invalid authorization: ${error.message}`)
     next(new Error(`Authorization rejected: ${error.message}`))

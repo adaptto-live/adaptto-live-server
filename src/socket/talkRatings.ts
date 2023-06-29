@@ -4,7 +4,7 @@ import { InterServerEvents, SocketData } from './socket.server.types'
 import { TalkRatingModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import { v4 as uuidv4 } from 'uuid'
-import { talkRatingValidation } from '../repository/validation.schema'
+import { talkRatingObject } from '../repository/validation.schema'
 
 export async function handleTalkRatings(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { userid, username } = socket.data
@@ -19,7 +19,7 @@ export async function handleTalkRatings(socket : Socket<ClientToServerEvents,Ser
   // store talk ratings
   socket.on('talkRating', async (talkRating, callback) => {
     // validate input
-    const { error } = talkRatingValidation.validate(talkRating)
+    const { error } = talkRatingObject.validate(talkRating)
     if (error) {
       callback({success:false, error:error.message})
       return

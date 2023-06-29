@@ -3,6 +3,7 @@ import { ClientToServerEvents, ServerToClientEvents } from './socket.types'
 import { InterServerEvents, SocketData } from './socket.server.types'
 import { MessageModel } from '../repository/mongodb.schema'
 import log from '../util/log'
+import { messageToServerObject, uuidString } from '../repository/validation.schema'
 
 export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { userid, username, admin } = socket.data
@@ -12,7 +13,12 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
 
   // CRUD handling for chat messages
   socket.on('message', async (newMessage, callback) => {
-    // TODO: validate
+    // validate input
+    const { error } = messageToServerObject.validate(newMessage)
+    if (error) {
+      callback({success:false, error:error.message})
+      return
+    }
 
     const { id, talkId, text } = newMessage
     log.debug(`User ${username} created message in ${talkId}: ${text}`)
@@ -23,7 +29,12 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
   })
 
   socket.on('messageUpdate', async (updatedMessage, callback) => {
-    // TODO: validate
+    // validate input
+    const { error } = messageToServerObject.validate(updatedMessage)
+    if (error) {
+      callback({success:false, error:error.message})
+      return
+    }
 
     const { id, text } = updatedMessage
     log.debug(`User ${username} updated message ${id}: ${text}`)
@@ -41,7 +52,12 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
   })
 
   socket.on('messageDelete', async (id, callback) => {
-    // TODO: validate
+    // validate input
+    const { error } = uuidString.validate(id)
+    if (error) {
+      callback({success:false, error:error.message})
+      return
+    }
 
     log.debug(`User ${username} deleted message ${id}`)
     const message = await MessageModel.findById(id).exec()

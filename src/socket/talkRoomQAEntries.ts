@@ -3,6 +3,7 @@ import { ClientToServerEvents, ServerToClientEvents } from './socket.types'
 import { InterServerEvents, SocketData } from './socket.server.types'
 import { QAEntryModel, UserModel } from '../repository/mongodb.schema'
 import log from '../util/log'
+import { qaEntryToServerObject, uuidString } from '../repository/validation.schema'
 
 export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { userid, username, admin } = socket.data
@@ -12,7 +13,12 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
 
   // CRUD handling for Q&A entries
   socket.on('qaEntry', async (newQaEntry, callback) => {
-    // TODO: validate
+    // validate input
+    const { error } = qaEntryToServerObject.validate(newQaEntry)
+    if (error) {
+      callback({success:false, error:error.message})
+      return
+    }
 
     const { id, talkId, text, anonymous, replyTo } = newQaEntry
     log.debug(`User ${username} created Q&A entry in ${talkId}: ${text}`)
@@ -24,7 +30,12 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   })
 
   socket.on('qaEntryUpdate', async (updatedQaEntry, callback) => {
-    // TODO: validate
+    // validate input
+    const { error } = qaEntryToServerObject.validate(updatedQaEntry)
+    if (error) {
+      callback({success:false, error:error.message})
+      return
+    }
 
     const { id, text, anonymous } = updatedQaEntry
     log.debug(`User ${username} updated Q&A entry ${id}: ${text}`)
@@ -43,7 +54,12 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   })
 
   socket.on('qaEntryDelete', async (id, callback) => {
-    // TODO: validate
+    // validate input
+    const { error } = uuidString.validate(id)
+    if (error) {
+      callback({success:false, error:error.message})
+      return
+    }
 
     log.debug(`User ${username} deleted Q&A entry ${id}`)
     const message = await QAEntryModel.findById(id).exec()

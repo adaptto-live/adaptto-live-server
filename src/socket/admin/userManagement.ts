@@ -5,6 +5,7 @@ import log from '../../util/log'
 import { UserModel } from '../../repository/mongodb.schema'
 import changeUsernameInAllDocuments from '../../util/changeUsernameInAllDocuments'
 import { userObject } from '../../repository/validation.schema'
+import isInputValid from '../../util/isInputValid'
 
 export async function handleAdminUserManagement(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { admin } = socket.data
@@ -23,10 +24,7 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
    })
 
   socket.on('adminUpdateUser', async (userData, callback) => {
-    // validate input
-    const { error } = userObject.validate(userData)
-    if (error) {
-      callback({success:false, error:error.message})
+    if (!isInputValid(userObject, userData, callback)) {
       return
     }
  

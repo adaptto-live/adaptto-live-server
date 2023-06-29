@@ -5,6 +5,7 @@ import { CurrentTalkModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import { v4 as uuidv4 } from 'uuid'
 import { talkIdString } from '../repository/validation.schema'
+import isInputValid from '../util/isInputValid'
 
 export async function handleCurrentTalk(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { admin } = socket.data
@@ -18,10 +19,7 @@ export async function handleCurrentTalk(socket : Socket<ClientToServerEvents,Ser
   // allow to change current talk (only admin)
   if (admin) {
     socket.on('currentTalk', async (talkId, callback) => {
-      // validate input
-      const { error } = talkIdString.validate(talkId)
-      if (error) {
-        callback({success:false, error:error.message})
+      if (!isInputValid(talkIdString, talkId, callback)) {
         return
       }
   

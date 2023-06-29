@@ -4,6 +4,7 @@ import { InterServerEvents, SocketData } from './socket.server.types'
 import { QAEntryModel, UserModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import { qaEntryToServerObject, uuidString } from '../repository/validation.schema'
+import isInputValid from '../util/isInputValid'
 
 export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { userid, username, admin } = socket.data
@@ -13,10 +14,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
 
   // CRUD handling for Q&A entries
   socket.on('qaEntry', async (newQaEntry, callback) => {
-    // validate input
-    const { error } = qaEntryToServerObject.validate(newQaEntry)
-    if (error) {
-      callback({success:false, error:error.message})
+    if (!isInputValid(qaEntryToServerObject, newQaEntry, callback)) {
       return
     }
 
@@ -30,10 +28,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   })
 
   socket.on('qaEntryUpdate', async (updatedQaEntry, callback) => {
-    // validate input
-    const { error } = qaEntryToServerObject.validate(updatedQaEntry)
-    if (error) {
-      callback({success:false, error:error.message})
+    if (!isInputValid(qaEntryToServerObject, updatedQaEntry, callback)) {
       return
     }
 
@@ -54,10 +49,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   })
 
   socket.on('qaEntryDelete', async (id, callback) => {
-    // validate input
-    const { error } = uuidString.validate(id)
-    if (error) {
-      callback({success:false, error:error.message})
+    if (!isInputValid(uuidString, id, callback)) {
       return
     }
 

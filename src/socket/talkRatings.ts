@@ -5,6 +5,7 @@ import { TalkRatingModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import { v4 as uuidv4 } from 'uuid'
 import { talkRatingObject } from '../repository/validation.schema'
+import isInputValid from '../util/isInputValid'
 
 export async function handleTalkRatings(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { userid, username } = socket.data
@@ -18,10 +19,7 @@ export async function handleTalkRatings(socket : Socket<ClientToServerEvents,Ser
 
   // store talk ratings
   socket.on('talkRating', async (talkRating, callback) => {
-    // validate input
-    const { error } = talkRatingObject.validate(talkRating)
-    if (error) {
-      callback({success:false, error:error.message})
+    if (!isInputValid(talkRatingObject, talkRating, callback)) {
       return
     }
 

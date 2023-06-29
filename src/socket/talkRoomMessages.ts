@@ -4,6 +4,7 @@ import { InterServerEvents, SocketData } from './socket.server.types'
 import { MessageModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import { messageToServerObject, uuidString } from '../repository/validation.schema'
+import isInputValid from '../util/isInputValid'
 
 export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { userid, username, admin } = socket.data
@@ -13,10 +14,7 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
 
   // CRUD handling for chat messages
   socket.on('message', async (newMessage, callback) => {
-    // validate input
-    const { error } = messageToServerObject.validate(newMessage)
-    if (error) {
-      callback({success:false, error:error.message})
+    if (!isInputValid(messageToServerObject, newMessage, callback)) {
       return
     }
 
@@ -29,10 +27,7 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
   })
 
   socket.on('messageUpdate', async (updatedMessage, callback) => {
-    // validate input
-    const { error } = messageToServerObject.validate(updatedMessage)
-    if (error) {
-      callback({success:false, error:error.message})
+    if (!isInputValid(messageToServerObject, updatedMessage, callback)) {
       return
     }
 
@@ -52,10 +47,7 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
   })
 
   socket.on('messageDelete', async (id, callback) => {
-    // validate input
-    const { error } = uuidString.validate(id)
-    if (error) {
-      callback({success:false, error:error.message})
+    if (!isInputValid(uuidString, id, callback)) {
       return
     }
 

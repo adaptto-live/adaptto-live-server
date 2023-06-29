@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io'
-import { ClientToServerEvents, ServerToClientEvents } from './socket.types'
+import { ClientToServerEvents, MessageToServer, OperationResult, ServerToClientEvents } from './socket.types'
 import { InterServerEvents, SocketData } from './socket.server.types'
-import { MessageModel } from '../repository/mongodb.schema'
+import { Message, MessageModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import { messageToServerObject, uuidString } from '../repository/validation.schema'
 import isInputValid from '../util/isInputValid'
@@ -13,7 +13,11 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
   }
 
   // CRUD handling for chat messages
-  socket.on('message', async (newMessage, callback) => {
+  socket.on('message', handleNew)
+  socket.on('messageUpdate', handleUpdate)
+  socket.on('messageDelete', handleDelete)
+
+  async function handleNew(newMessage: MessageToServer, callback: (result: OperationResult) => void) {
     if (!isInputValid(messageToServerObject, newMessage, callback)) {
       return
     }
@@ -24,9 +28,9 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
     await MessageModel.create({ _id:id, talkId, date, userid, username, text })
     callback({success: true})
     socket.in(talkId).emit('messages', [{ id, date, userid, username, text }])
-  })
+  }
 
-  socket.on('messageUpdate', async (updatedMessage, callback) => {
+  async function handleUpdate(updatedMessage: MessageToServer, callback: (result: OperationResult) => void) {
     if (!isInputValid(messageToServerObject, updatedMessage, callback)) {
       return
     }
@@ -44,9 +48,9 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
     else {
       callback({success: false, error: `Message ${id} not found or not allowed to update.`})
     }
-  })
+  }
 
-  socket.on('messageDelete', async (id, callback) => {
+  async function handleDelete(id: string, callback: (result: OperationResult) => void) {
     if (!isInputValid(uuidString, id, callback)) {
       return
     }
@@ -61,6 +65,6 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
     else {
       callback({success: false, error: `Message ${id} not found or not allowed to update.`})
     }
-  })
+  }
 
 }

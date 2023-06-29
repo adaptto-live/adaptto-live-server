@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io'
-import { ClientToServerEvents, ServerToClientEvents } from './socket.types'
+import { ClientToServerEvents, OperationResult, QAEntryToServer, ServerToClientEvents } from './socket.types'
 import { InterServerEvents, SocketData } from './socket.server.types'
 import { QAEntryModel, UserModel } from '../repository/mongodb.schema'
 import log from '../util/log'
@@ -13,7 +13,11 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   }
 
   // CRUD handling for Q&A entries
-  socket.on('qaEntry', async (newQaEntry, callback) => {
+  socket.on('qaEntry', handleNew)
+  socket.on('qaEntryUpdate', handleUpdate)
+  socket.on('qaEntryDelete', handleDelete)
+
+  async function handleNew(newQaEntry: QAEntryToServer, callback: (result: OperationResult) => void) {
     if (!isInputValid(qaEntryToServerObject, newQaEntry, callback)) {
       return
     }
@@ -25,9 +29,9 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text, replyTo })
     callback({success: true})
     socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, replyTo}])
-  })
+  }
 
-  socket.on('qaEntryUpdate', async (updatedQaEntry, callback) => {
+  async function handleUpdate(updatedQaEntry: QAEntryToServer, callback: (result: OperationResult) => void) {
     if (!isInputValid(qaEntryToServerObject, updatedQaEntry, callback)) {
       return
     }
@@ -46,9 +50,9 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     else {
       callback({success: false, error: `QA entry ${id} not found or not allowed to update.`})
     }
-  })
+  }
 
-  socket.on('qaEntryDelete', async (id, callback) => {
+  async function handleDelete(id: string, callback: (result: OperationResult) => void) {
     if (!isInputValid(uuidString, id, callback)) {
       return
     }
@@ -64,7 +68,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     else {
       callback({success: false, error: `QA entry ${id} not found or not allowed to update.`})
     }
-  })
+  }
 
 }
 

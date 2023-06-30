@@ -40,7 +40,8 @@ export const talkRatingObject = Joi.object({
 export const messageToServerObject = Joi.object({
   id: uuidString.required(),
   talkId: talkIdString.required(),
-  text: messageString.required()
+  text: messageString.required(),
+  highlight: Joi.bool()
 })
 
 export const qaEntryToServerObject = Joi.object({
@@ -48,7 +49,8 @@ export const qaEntryToServerObject = Joi.object({
   talkId: talkIdString.required(),
   text: messageString.required(),
   anonymous: Joi.bool(),
-  replyTo: talkIdString
+  replyTo: talkIdString,
+  highlight: Joi.bool()
 })
 
 export const userObject = Joi.object({

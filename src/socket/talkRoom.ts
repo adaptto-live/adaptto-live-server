@@ -24,12 +24,12 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
 
     // emit all existing messages and Q&A entries
     const messages = (await MessageModel.find({talkId}).sort({date:1}).exec())
-      .map(({id, date, userid, username, text}) => ({id, date, userid, username, text}))
+      .map(({id, date, userid, username, text, highlight}) => ({id, date, userid, username, text, highlight}))
     if (messages.length > 0) {
       socket.emit('messages', messages)
     }
     const qaEntries = (await QAEntryModel.find({talkId}).sort({date:1}).exec())
-      .map(({id, date, userid, username, text, replyTo}) => ({id, date, userid, username, text, replyTo}))
+      .map(({id, date, userid, username, text, replyTo, highlight}) => ({id, date, userid, username, text, replyTo, highlight}))
     if (qaEntries.length > 0) {
       socket.emit('qaEntries', qaEntries)
     }

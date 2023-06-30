@@ -49,6 +49,7 @@ export interface MessageToServer {
   id: string
   talkId: string
   text: string
+  highlight?: boolean
 }
 
 export interface MessageFromServer {
@@ -57,6 +58,7 @@ export interface MessageFromServer {
   userid: string
   username: string
   text: string
+  highlight?: boolean
 }
 
 export interface QAEntryToServer {
@@ -65,6 +67,7 @@ export interface QAEntryToServer {
   text: string
   anonymous?: boolean
   replyTo?: string
+  highlight?: boolean
 }
 
 export interface QAEntryFromServer {
@@ -74,6 +77,7 @@ export interface QAEntryFromServer {
   username?: string
   text: string
   replyTo?: string
+  highlight?: boolean
 }
 
 export interface LoginCode {

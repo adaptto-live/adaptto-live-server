@@ -70,6 +70,7 @@ export interface Message {
   userid: string
   username: string
   text: string
+  highlight?: boolean
 }
 const MessageSchema = new mongoose.Schema<Message>({
   _id: { type: String, required:true },
@@ -77,7 +78,8 @@ const MessageSchema = new mongoose.Schema<Message>({
   date: { type: Date, default: Date.now, index:true },
   userid: { type: String, required:true, index:true },
   username: { type: String, required:true },
-  text: { type: String, required:true }
+  text: { type: String, required:true },
+  highlight: { type: Boolean, required:false }
 })
 export const MessageModel = mongoose.model<Message>('message', MessageSchema)
 
@@ -89,6 +91,7 @@ export interface QAEntry {
   username?: string
   text: string
   replyTo?: string
+  highlight?: boolean
 }
 const QAEntrySchema = new mongoose.Schema<QAEntry>({
   _id: { type: String, required:true },
@@ -97,7 +100,8 @@ const QAEntrySchema = new mongoose.Schema<QAEntry>({
   userid: { type: String, required:true, index:true },
   username: { type: String, required:false },
   text: { type: String, required:true },
-  replyTo: { type: String, required:false, index:true }
+  replyTo: { type: String, required:false, index:true },
+  highlight: { type: Boolean, required:false }
 })
 QAEntrySchema.index({userid: 1, username: 1})
 export const QAEntryModel = mongoose.model<QAEntry>('qa-entry', QAEntrySchema)

@@ -22,12 +22,12 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
       return
     }
 
-    const { id, talkId, text } = newMessage
+    const { id, talkId, text, highlight } = newMessage
     log.debug(`User ${username} created message in ${talkId}: ${text}`)
     const date = new Date()
-    await MessageModel.create({ _id:id, talkId, date, userid, username, text })
+    await MessageModel.create({ _id:id, talkId, date, userid, username, text, highlight })
     callback({success: true})
-    socket.in(talkId).emit('messages', [{ id, date, userid, username, text }])
+    socket.in(talkId).emit('messages', [{ id, date, userid, username, text, highlight }])
   }
 
   async function handleUpdate(updatedMessage: MessageToServer, callback: (result: OperationResult) => void) {
@@ -35,15 +35,16 @@ export async function handleTalkRoomMessages(socket : Socket<ClientToServerEvent
       return
     }
 
-    const { id, text } = updatedMessage
+    const { id, text, highlight } = updatedMessage
     log.debug(`User ${username} updated message ${id}: ${text}`)
     const message = await MessageModel.findById(id).exec()
     if (message != null && isEditAllowed(message)) {
       message.text = text
+      message.highlight = highlight
       await message.save()
       callback({success: true})
       socket.in(message.talkId).emit('messageUpdate',
-        {id, date: message.date, userid: message.userid, username: message.username, text: message.text})
+        {id, date: message.date, userid: message.userid, username: message.username, text: message.text, highlight: message.highlight})
     }
     else {
       callback({success: false, error: `Message ${id} not found or not allowed to update.`})

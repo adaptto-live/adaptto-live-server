@@ -50,7 +50,8 @@ export const qaEntryToServerObject = Joi.object({
   text: messageString.required(),
   anonymous: Joi.bool(),
   replyTo: talkIdString,
-  highlight: Joi.bool()
+  highlight: Joi.bool(),
+  answered: Joi.bool()
 })
 
 export const userObject = Joi.object({

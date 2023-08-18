@@ -68,6 +68,7 @@ export interface QAEntryToServer {
   anonymous?: boolean
   replyTo?: string
   highlight?: boolean
+  answered?: boolean
 }
 
 export interface QAEntryFromServer {
@@ -78,6 +79,7 @@ export interface QAEntryFromServer {
   text: string
   replyTo?: string
   highlight?: boolean
+  answered?: boolean
 }
 
 export interface LoginCode {

@@ -36,13 +36,14 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
       return
     }
 
-    const { id, text, anonymous, highlight } = updatedQaEntry
+    const { id, text, anonymous, highlight, answered } = updatedQaEntry
     log.debug(`User ${username} updated Q&A entry ${id}: ${text}`)
     const message = await QAEntryModel.findById(id).exec()
     if (message != null && isEditAllowed(message)) {
       message.username = await getUsernameForUpdate(message.userid, anonymous)
       message.text = text
       message.highlight = highlight
+      message.answered = answered
       await message.save()
       callback({success: true})
       socket.in(message.talkId).emit('qaEntryUpdate', 

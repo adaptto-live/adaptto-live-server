@@ -26,6 +26,7 @@ export interface ClientToServerEvents {
   messageDelete: (id: string, callback: (result: OperationResult) => void) => void
   qaEntry: (qaEntry: QAEntryToServer, callback: (result: OperationResult) => void) => void
   qaEntryUpdate: (qaEntry: QAEntryToServer, callback: (result: OperationResult) => void) => void
+  qaEntryUpdateAnswered: (qaEntry: QAEntryAnsweredToServer, callback: (result: OperationResult) => void) => void
   qaEntryDelete: (id: string, callback: (result: OperationResult) => void) => void
   adminGetLoginCodes: () => void
   adminGetUsers: () => void
@@ -68,6 +69,11 @@ export interface QAEntryToServer {
   anonymous?: boolean
   replyTo?: string
   highlight?: boolean
+  answered?: boolean
+}
+
+export interface QAEntryAnsweredToServer {
+  id: string
   answered?: boolean
 }
 

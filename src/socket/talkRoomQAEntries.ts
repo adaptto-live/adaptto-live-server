@@ -1,9 +1,9 @@
 import { Socket } from 'socket.io'
-import { ClientToServerEvents, OperationResult, QAEntryToServer, ServerToClientEvents } from './socket.types'
+import { ClientToServerEvents, OperationResult, QAEntryAnsweredToServer, QAEntryToServer, ServerToClientEvents } from './socket.types'
 import { InterServerEvents, SocketData } from './socket.server.types'
 import { QAEntry, QAEntryModel, UserModel } from '../repository/mongodb.schema'
 import log from '../util/log'
-import { qaEntryToServerObject, uuidString } from '../repository/validation.schema'
+import { qaEntryAnsweredToServerObject, qaEntryToServerObject, uuidString } from '../repository/validation.schema'
 import isInputValid from '../util/isInputValid'
 
 export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
@@ -15,6 +15,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   // CRUD handling for Q&A entries
   socket.on('qaEntry', handleNew)
   socket.on('qaEntryUpdate', handleUpdate)
+  socket.on('qaEntryUpdateAnswered', handleUpdateAnswered)
   socket.on('qaEntryDelete', handleDelete)
 
   async function handleNew(newQaEntry: QAEntryToServer, callback: (result: OperationResult) => void) {
@@ -31,6 +32,9 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, replyTo, highlight, answered}])
   }
 
+  /**
+   * Updates all properties of Q&A entry. Only allowed for creator of entry and for admins.
+   */
   async function handleUpdate(updatedQaEntry: QAEntryToServer, callback: (result: OperationResult) => void) {
     if (!isInputValid(qaEntryToServerObject, updatedQaEntry, callback)) {
       return
@@ -51,6 +55,29 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     }
     else {
       callback({success: false, error: `QA entry ${id} not found or not allowed to update.`})
+    }
+  }
+
+  /**
+   * Updates only 'answered' flag of Q&A entry. Allowed for everyone.
+   */
+  async function handleUpdateAnswered(updatedQaEntryAnswered: QAEntryAnsweredToServer, callback: (result: OperationResult) => void) {
+    if (!isInputValid(qaEntryAnsweredToServerObject, updatedQaEntryAnswered, callback)) {
+      return
+    }
+
+    const { id, answered } = updatedQaEntryAnswered
+    log.debug(`User ${username} updated Q&A entry answered ${id}: ${answered}`)
+    const message = await QAEntryModel.findById(id).exec()
+    if (message != null) {
+      message.answered = answered
+      await message.save()
+      callback({success: true})
+      socket.in(message.talkId).emit('qaEntryUpdate', 
+        {id, date: message.date, userid: message.userid, username: message.username, text: message.text, highlight: message.highlight, answered: message.answered})
+    }
+    else {
+      callback({success: false, error: `QA entry ${id} not found.`})
     }
   }
 

@@ -54,6 +54,11 @@ export const qaEntryToServerObject = Joi.object({
   answered: Joi.bool()
 })
 
+export const qaEntryAnsweredToServerObject = Joi.object({
+  id: uuidString.required(),
+  answered: Joi.bool()
+})
+
 export const userObject = Joi.object({
   id: uuidString.required(),
   username: usernameString.required(),

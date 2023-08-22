@@ -32,6 +32,9 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, replyTo, highlight, answered}])
   }
 
+  /**
+   * Updates all properties of Q&A entry. Only allowed for creator of entry and for admins.
+   */
   async function handleUpdate(updatedQaEntry: QAEntryToServer, callback: (result: OperationResult) => void) {
     if (!isInputValid(qaEntryToServerObject, updatedQaEntry, callback)) {
       return
@@ -55,6 +58,9 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     }
   }
 
+  /**
+   * Updates only 'answered' flag of Q&A entry. Allowed for everyone.
+   */
   async function handleUpdateAnswered(updatedQaEntryAnswered: QAEntryAnsweredToServer, callback: (result: OperationResult) => void) {
     if (!isInputValid(qaEntryAnsweredToServerObject, updatedQaEntryAnswered, callback)) {
       return

@@ -22,13 +22,13 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
       return
     }
 
-    const { id, talkId, text, anonymous, replyTo, highlight } = newQaEntry
+    const { id, talkId, text, anonymous, replyTo, highlight, answered } = newQaEntry
     log.debug(`User ${username} created Q&A entry in ${talkId}: ${text}`)
     const date = new Date()
     const qaEntryUsername = anonymous ? undefined : username
-    await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text, replyTo, highlight })
+    await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text, replyTo, highlight, answered })
     callback({success: true})
-    socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, replyTo, highlight}])
+    socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, replyTo, highlight, answered}])
   }
 
   async function handleUpdate(updatedQaEntry: QAEntryToServer, callback: (result: OperationResult) => void) {
@@ -36,17 +36,18 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
       return
     }
 
-    const { id, text, anonymous, highlight } = updatedQaEntry
+    const { id, text, anonymous, highlight, answered } = updatedQaEntry
     log.debug(`User ${username} updated Q&A entry ${id}: ${text}`)
     const message = await QAEntryModel.findById(id).exec()
     if (message != null && isEditAllowed(message)) {
       message.username = await getUsernameForUpdate(message.userid, anonymous)
       message.text = text
       message.highlight = highlight
+      message.answered = answered
       await message.save()
       callback({success: true})
       socket.in(message.talkId).emit('qaEntryUpdate', 
-        {id, date: message.date, userid: message.userid, username: message.username, text: message.text, highlight: message.highlight})
+        {id, date: message.date, userid: message.userid, username: message.username, text: message.text, highlight: message.highlight, answered: message.answered})
     }
     else {
       callback({success: false, error: `QA entry ${id} not found or not allowed to update.`})

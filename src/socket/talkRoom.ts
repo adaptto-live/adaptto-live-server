@@ -29,7 +29,7 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
       socket.emit('messages', messages)
     }
     const qaEntries = (await QAEntryModel.find({talkId}).sort({date:1}).exec())
-      .map(({id, date, userid, username, text, replyTo, highlight}) => ({id, date, userid, username, text, replyTo, highlight}))
+      .map(({id, date, userid, username, text, replyTo, highlight, answered}) => ({id, date, userid, username, text, replyTo, highlight, answered}))
     if (qaEntries.length > 0) {
       socket.emit('qaEntries', qaEntries)
     }

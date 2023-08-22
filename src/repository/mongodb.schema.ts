@@ -92,6 +92,7 @@ export interface QAEntry {
   text: string
   replyTo?: string
   highlight?: boolean
+  answered?: boolean
 }
 const QAEntrySchema = new mongoose.Schema<QAEntry>({
   _id: { type: String, required:true },
@@ -101,7 +102,8 @@ const QAEntrySchema = new mongoose.Schema<QAEntry>({
   username: { type: String, required:false },
   text: { type: String, required:true },
   replyTo: { type: String, required:false, index:true },
-  highlight: { type: Boolean, required:false }
+  highlight: { type: Boolean, required:false },
+  answered: { type: Boolean, required:false }
 })
 QAEntrySchema.index({userid: 1, username: 1})
 export const QAEntryModel = mongoose.model<QAEntry>('qa-entry', QAEntrySchema)

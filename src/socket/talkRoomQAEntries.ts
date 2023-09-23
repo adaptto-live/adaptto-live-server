@@ -7,7 +7,7 @@ import { qaEntryAnsweredToServerObject, qaEntryToServerObject, uuidString } from
 import isInputValid from '../util/isInputValid'
 
 export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
-  const { userid, username, admin } = socket.data
+  const { userid, username, admin, qaadmin } = socket.data
   if (!userid || !username) {
     return
   }
@@ -69,7 +69,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     const { id, answered } = updatedQaEntryAnswered
     log.debug(`User ${username} updated Q&A entry answered ${id}: ${answered}`)
     const message = await QAEntryModel.findById(id).exec()
-    if (message != null) {
+    if (message != null && isUpdateAnsweredAllowed(message)) {
       message.answered = answered
       await message.save()
       callback({success: true})
@@ -77,7 +77,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
         {id, date: message.date, userid: message.userid, username: message.username, text: message.text, highlight: message.highlight, answered: message.answered})
     }
     else {
-      callback({success: false, error: `QA entry ${id} not found.`})
+      callback({success: false, error: `QA entry ${id} not found or not allowed to update.`})
     }
   }
 
@@ -100,7 +100,11 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   }
 
   function isEditAllowed(message: QAEntry) : boolean {
-    return message != null && ((message.userid == userid) || admin) 
+    return message != null && ((message.userid == userid) || admin)
+  }
+
+  function isUpdateAnsweredAllowed(message: QAEntry) : boolean {
+    return message != null && ((message.userid == userid) || admin || qaadmin)
   }
 
 }

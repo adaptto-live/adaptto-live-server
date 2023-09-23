@@ -1,5 +1,5 @@
 export interface ServerToClientEvents {
-  login: (userid: string, admin: boolean) => void
+  login: (userid: string, admin: boolean, qaadmin?: boolean) => void
   currentTalk: (talkId: string) => void
   talkRatings: (talkRatings: TalkRating[]) => void
   roomUsers: (usernames : string[]) => void
@@ -100,6 +100,7 @@ export interface User {
   code: string
   username: string
   admin: boolean
+  qaadmin: boolean
   blocked: boolean
   created: Date
   updated: Date
@@ -109,6 +110,7 @@ export interface UserUpdate {
   id: string
   username: string
   admin: boolean
+  qaadmin: boolean
   blocked: boolean
 }
 

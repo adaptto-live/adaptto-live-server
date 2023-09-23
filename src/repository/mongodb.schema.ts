@@ -18,6 +18,7 @@ export interface User {
   code: string
   username: string
   admin: boolean
+  qaadmin: boolean
   blocked: boolean
   created: Date
   updated: Date
@@ -27,6 +28,7 @@ const UserSchema = new mongoose.Schema<User>({
   code: { type: String, required:true, index:true },
   username: { type: String, required:true, index:true },
   admin: { type: Boolean, required:false },
+  qaadmin: { type: Boolean, required:false },
   blocked: { type: Boolean, required:false },
   created: { type: Date, required:true },
   updated: { type: Date, required:false }

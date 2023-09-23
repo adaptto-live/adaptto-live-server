@@ -35,6 +35,7 @@ export async function middleware(
       socket.data.userid = user._id
       socket.data.username = username
       socket.data.admin = user.admin
+      socket.data.qaadmin = user.qaadmin
       socket.data.usernameChanged = (user.username != username)
       next()
       return
@@ -55,6 +56,7 @@ export async function middleware(
     socket.data.userid = userid
     socket.data.username = username
     socket.data.admin = false
+    socket.data.qaadmin = false
     socket.data.usernameChanged = false
     next()
   }

@@ -6,7 +6,7 @@ import { UserModel } from '../repository/mongodb.schema'
 import changeUsernameInAllDocuments from '../util/changeUsernameInAllDocuments'
 
 export async function handleConnection(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
-  const { userid, username, admin, usernameChanged } = socket.data
+  const { userid, username, admin, qaadmin, usernameChanged } = socket.data
   if (!userid || !username) {
     return
   }
@@ -24,7 +24,7 @@ export async function handleConnection(socket : Socket<ClientToServerEvents,Serv
   }
 
   log.debug(`User connected: ${username}`)
-  socket.emit('login', userid, admin ?? false)
+  socket.emit('login', userid, admin ?? false, qaadmin ?? false)
 
   // user disconnects
   socket.on('disconnect', () => {

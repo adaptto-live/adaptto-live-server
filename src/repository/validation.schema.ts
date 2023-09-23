@@ -63,5 +63,6 @@ export const userObject = Joi.object({
   id: uuidString.required(),
   username: usernameString.required(),
   admin: Joi.bool(),
+  qaadmin: Joi.bool(),
   blocked: Joi.bool()
 })

@@ -19,7 +19,8 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
     log.debug('Admin: get users')
     const users = await UserModel.find().sort({username:1}).exec()
     socket.emit('adminUsers', users.map(user => 
-        ({id: user.id, code: user.code, username: user.username, admin: user.admin, blocked: user.blocked,
+        ({id: user.id, code: user.code, username: user.username,
+          admin: user.admin, qaadmin: user.qaadmin, blocked: user.blocked,
           created: user.created, updated: user.updated})))
    })
 
@@ -28,13 +29,14 @@ export async function handleAdminUserManagement(socket : Socket<ClientToServerEv
       return
     }
  
-    const {id, username, admin, blocked} = userData
+    const {id, username, admin, qaadmin, blocked} = userData
     log.debug(`Admin: update user ${username}`)
     const user = await UserModel.findOne({_id:id}).sort({username:1}).exec()
     if (user) {
       const userNameChanged = user.username != username
       user.username = username
       user.admin = admin
+      user.qaadmin = qaadmin
       user.blocked = blocked
       user.updated = new Date()
       await user.save()

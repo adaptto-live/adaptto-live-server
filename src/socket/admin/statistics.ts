@@ -15,11 +15,11 @@ export async function handleAdminStatistics(socket : Socket<ClientToServerEvents
   socket.on('adminGetStatistics', async () => {
     log.debug('Admin: get statistics')
     
-    const numLoginCodes = await LoginCodeModel.count().exec()
-    const numUsers = await UserModel.count().exec()
-    const numTalkRatings = await TalkRatingModel.count().exec()
-    const numMessages = await MessageModel.count().exec()
-    const numQAEntries = await QAEntryModel.count().exec()
+    const numLoginCodes = await LoginCodeModel.countDocuments().exec()
+    const numUsers = await UserModel.countDocuments().exec()
+    const numTalkRatings = await TalkRatingModel.countDocuments().exec()
+    const numMessages = await MessageModel.countDocuments().exec()
+    const numQAEntries = await QAEntryModel.countDocuments().exec()
 
     socket.emit('adminStatistics', { numLoginCodes, numUsers, numTalkRatings, numMessages, numQAEntries })
   })

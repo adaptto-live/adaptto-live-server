@@ -1,5 +1,5 @@
-import { AnySchema } from "joi";
-import { OperationResult } from "../socket/socket.types";
+import { AnySchema } from 'joi'
+import { OperationResult } from '../socket/socket.types'
 
 /**
  * Validates object input

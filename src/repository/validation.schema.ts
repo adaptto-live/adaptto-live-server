@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi from 'joi'
 
 const usernameString = Joi.string()
   .regex(/^[\p{L}.\-0-9]+( [\p{L}.\-0-9]+)*$/u)

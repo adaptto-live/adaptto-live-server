@@ -39,7 +39,7 @@ export const talkRatingObject = Joi.object({
 
 export const talkModeratorNotesToServerObject = Joi.object({
   talkId: talkIdString.required(),
-  text: messageString.required()
+  text: messageString.allow('').optional()
 })
 
 export const messageToServerObject = Joi.object({

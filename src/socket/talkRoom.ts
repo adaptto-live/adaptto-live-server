@@ -38,8 +38,8 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
     if (qaadmin || admin) {
       const notes = await TalkModeratorNotesModel.findOne({talkId})
       if (notes != null) {
-        const { id, text, updated } = notes
-        socket.emit('moderatorTalkNotes', { id, text, updated })
+        const { text, updated } = notes
+        socket.emit('talkModeratorNotes', { text, updated })
       }
     }
   })

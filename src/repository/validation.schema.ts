@@ -14,6 +14,10 @@ const loginTokenString = Joi.string()
 const messageString = Joi.string()
   .max(1000)  // in client, only 500 allowed, but emojis are usually counted as 2
 
+const talkModeratorNotesString = Joi.string()
+  .max(10000)  // in client, only 5000 allowed, but emojis are usually counted as 2
+  .allow('')
+
 const ratingNumber = Joi.number()
   .min(1)
   .max(5)
@@ -39,7 +43,7 @@ export const talkRatingObject = Joi.object({
 
 export const talkModeratorNotesToServerObject = Joi.object({
   talkId: talkIdString.required(),
-  text: messageString.allow('').optional()
+  text: talkModeratorNotesString.optional()
 })
 
 export const messageToServerObject = Joi.object({

@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io'
 import { ClientToServerEvents, ServerToClientEvents } from './socket.types'
 import { InterServerEvents, SocketData } from './socket.server.types'
-import { MessageModel, QAEntryModel } from '../repository/mongodb.schema'
+import { MessageModel, QAEntryModel, TalkModeratorNotesModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import RoomUsers from '../util/RoomUsers'
 
@@ -9,7 +9,7 @@ const roomUsers = new RoomUsers()
 
 export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>,
     socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
-  const { userid, username } = socket.data
+  const { userid, username, qaadmin, admin } = socket.data
   if (!userid || !username) {
     return
   }
@@ -32,6 +32,15 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
       .map(({id, date, userid, username, text, replyTo, highlight, answered}) => ({id, date, userid, username, text, replyTo, highlight, answered}))
     if (qaEntries.length > 0) {
       socket.emit('qaEntries', qaEntries)
+    }
+
+    // moderator notes (for Q&A admin)
+    if (qaadmin || admin) {
+      const notes = await TalkModeratorNotesModel.findOne({talkId})
+      if (notes != null) {
+        const { text, updated } = notes
+        socket.emit('talkModeratorNotes', { text, updated })
+      }
     }
   })
   socket.on('roomLeave', async (talkId: string) => {

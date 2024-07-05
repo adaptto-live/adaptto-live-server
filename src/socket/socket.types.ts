@@ -3,6 +3,7 @@ export interface ServerToClientEvents {
   currentTalk: (talkId: string) => void
   talkRatings: (talkRatings: TalkRating[]) => void
   roomUsers: (usernames : string[]) => void
+  talkModeratorNotes: (notes: ModeratorTalkNotesFromServer) => void
   messages: (messages: MessageFromServer[]) => void
   messageUpdate: (message: MessageFromServer) => void
   messageDelete: (id: string) => void
@@ -21,6 +22,7 @@ export interface ClientToServerEvents {
   talkRating: (talkRating: TalkRating, callback: (result: OperationResult) => void) => void
   roomEnter: (talkId: string) => void
   roomLeave: (talkId: string) => void
+  talkModeratorNotes: (notes: ModeratorTalkNotesToServer, callback: (result: OperationResult) => void) => void
   message: (message: MessageToServer, callback: (result: OperationResult) => void) => void
   messageUpdate: (message: MessageToServer, callback: (result: OperationResult) => void) => void
   messageDelete: (id: string, callback: (result: OperationResult) => void) => void
@@ -44,6 +46,16 @@ export interface TalkRating {
   talkId: string
   rating?: number
   comment? : string
+}
+
+export interface ModeratorTalkNotesFromServer {
+  text: string
+  updated: Date
+}
+
+export interface ModeratorTalkNotesToServer {
+  talkId: string
+  text: string
 }
 
 export interface MessageToServer {

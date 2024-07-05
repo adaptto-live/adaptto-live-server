@@ -65,6 +65,20 @@ const TalkRatingSchema = new mongoose.Schema<TalkRating>({
 })
 export const TalkRatingModel = mongoose.model<TalkRating>('talk-rating', TalkRatingSchema)
 
+export interface TalkModeratorNotes {
+  _id: string
+  talkId: string
+  text: string
+  updated: Date
+}
+const TalkModeratorNotesSchema = new mongoose.Schema<TalkModeratorNotes>({
+  _id: { type: String, required:true },
+  talkId: { type: String, required:true, index:true },
+  text: { type: String },
+  updated: { type: Date, default: Date.now }
+})
+export const TalkModeratorNotesModel = mongoose.model<TalkModeratorNotes>('talk-moderator-notes', TalkModeratorNotesSchema)
+
 export interface Message {
   _id: string
   talkId: string

@@ -8,7 +8,7 @@ import { talkIdString } from '../repository/validation.schema'
 import isInputValid from '../util/isInputValid'
 
 export async function handleCurrentTalk(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
-  const { admin } = socket.data
+  const { admin, qaadmin } = socket.data
 
   // emit current talk on login
   const currentTalk = await CurrentTalkModel.findOne().exec()
@@ -16,8 +16,8 @@ export async function handleCurrentTalk(socket : Socket<ClientToServerEvents,Ser
     socket.emit('currentTalk', currentTalk.talkId)
   }
 
-  // allow to change current talk (only admin)
-  if (admin) {
+  // allow to change current talk (only admin & qaadmin)
+  if (admin || qaadmin) {
     socket.on('currentTalk', async (talkId, callback) => {
       if (!isInputValid(talkIdString, talkId, callback)) {
         return

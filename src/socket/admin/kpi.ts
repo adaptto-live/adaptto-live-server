@@ -32,12 +32,10 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
     const users = await UserModel.find().sort({created:1}).exec()
     dayDates.forEach((dayDate, index) => {
       const date = new Date(dayDate)
-      console.log('date', date, 'type', typeof date)
       const day : KPIDatasetDay = { day: index+1, values: {} }
       dataset.days.push(day)
       for (let hour = 9; hour <= 18; hour++) {
         const upToDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, 0, 0)
-        console.log('upToDate', upToDate)
         const count = users.filter(user => user.created <= upToDate).length
         day.values[hour] = count
       }

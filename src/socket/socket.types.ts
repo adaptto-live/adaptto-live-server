@@ -14,6 +14,7 @@ export interface ServerToClientEvents {
   adminUsers: (users: User[]) => void
   adminTalkRatings: (ratings: AverageTalkRating[]) => void
   adminStatistics: (statistics: Statistics) => void
+  adminKPIDataset: (kpiDataset: KPIDataset) => void
   userBlocked: (userid: string) => void
 }
 
@@ -35,6 +36,7 @@ export interface ClientToServerEvents {
   adminUpdateUser: (user: UserUpdate, callback: (result: OperationResult) => void) => void
   adminGetTalkRatings: () => void
   adminGetStatistics: () => void
+  adminGetKPI: (dayDates: Date[]) => void
 }
 
 export interface OperationResult {
@@ -139,4 +141,21 @@ export interface Statistics {
   numTalkRatings: number
   numMessages: number
   numQAEntries: number
+}
+
+export interface KPIDataset {
+  title: string
+  xAxisTitle: string
+  yAxisTitle: string
+  days: KPIDatasetDay[]
+}
+
+export interface KPIDatasetDay {
+  day: number
+  values: KPIDataPoint[]
+}
+
+export interface KPIDataPoint {
+  x: number
+  y: number
 }

@@ -19,7 +19,6 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
     const dates = dayDates.map(date => new Date(date))
     await userRegistrationKPI(dates)
     await userActivityKPI(dates)
-    await talkRatingKPI(dates)
   })
 
   /**
@@ -86,22 +85,6 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
         })
       }
     })
-
-    socket.emit('adminKPIDataset', dataset)
-  }
-
-  /**
-   * Average talk rating per talk.
-   */
-  async function talkRatingKPI(dates: Date[]) {
-    const dataset : KPIDataset = {
-      title: 'Average Talk Rating',
-      xAxisTitle: 'Talk Index',
-      yAxisTitle: 'Average Rating',
-      days: []
-    }
-
-    // TODO: calc KPI
 
     socket.emit('adminKPIDataset', dataset)
   }

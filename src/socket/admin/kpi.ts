@@ -2,10 +2,11 @@ import { Socket } from 'socket.io'
 import { ClientToServerEvents, KPIDataset, KPIDatasetDay, ServerToClientEvents } from '../socket.types'
 import { InterServerEvents, SocketData } from '../socket.server.types'
 import log from '../../util/log'
-import { UserModel } from '../../repository/mongodb.schema'
+import { MessageModel, QAEntryModel, TalkRatingModel, UserModel } from '../../repository/mongodb.schema'
 
 export async function handleAdminKPI(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { admin } = socket.data
+  const minuteSlots = [0, 30]
 
   // admin-only operations
   if (!admin) {
@@ -15,13 +16,16 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
   socket.on('adminGetKPI', async (dayDates: Date[]) => {
     log.debug('Admin: get KPI')
 
-    await userRegistrationKPI(dayDates)
-    await talkRatingKPI()
-    await talkMessagesKPI()
-    await talkQAEntriesKPI()
+    const dates = dayDates.map(date => new Date(date))
+    await userRegistrationKPI(dates)
+    await userActivityKPI(dates)
+    await talkRatingKPI(dates)
   })
 
-  async function userRegistrationKPI(dayDates: Date[]) {
+  /**
+   * User registrations per hour of day.
+   */
+  async function userRegistrationKPI(dates: Date[]) {
     const dataset : KPIDataset = {
       title: 'User Registrations',
       xAxisTitle: 'Hour of day',
@@ -30,62 +34,70 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
     }
 
     const users = await UserModel.find().sort({created:1}).exec()
-    dayDates.forEach((dayDate, index) => {
-      const date = new Date(dayDate)
-      const day : KPIDatasetDay = { day: index+1, values: {} }
+    dates.forEach((date, index) => {
+      const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
       for (let hour = 9; hour <= 18; hour++) {
-        const upToDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, 0, 0)
-        const count = users.filter(user => user.created <= upToDate).length
-        day.values[hour] = count
+        for (const minuteSlot of minuteSlots) {
+          const upToDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minuteSlot, 0)
+          const count = users.filter(user => user.created <= upToDate).length
+          day.values.push({
+            x: hour + (minuteSlot / 60),
+            y: count
+          })
+        }
       }
     })
 
     socket.emit('adminKPIDataset', dataset)
   }
 
-  async function talkRatingKPI() {
-    const datasetNumber : KPIDataset = {
-      title: 'Talk Ratings',
-      xAxisTitle: 'Talk Index',
-      yAxisTitle: '# Talk Ratings',
-      days: []
-    }
-
-    // TODO: calc KPI
-
-    socket.emit('adminKPIDataset', datasetNumber)
-
-    const datasetAverage : KPIDataset = {
-      title: 'Average Rating',
-      xAxisTitle: 'Talk Index',
-      yAxisTitle: 'Average Rating',
-      days: []
-    }
-
-    // TODO: calc KPI
-
-    socket.emit('adminKPIDataset', datasetAverage)
-  }
-
-  async function talkMessagesKPI() {
+  /**
+   * User activity per hour of day (# Messages / Q&A Entries / Ratings)
+   */
+  async function userActivityKPI(dates: Date[]) {
     const dataset : KPIDataset = {
-      title: 'Talk Messages',
-      xAxisTitle: 'Talk Index',
-      yAxisTitle: '# Messages',
+      title: 'User Activity',
+      xAxisTitle: 'Hour of day',
+      yAxisTitle: '# Messages / Q&A Entries / Ratings',
       days: []
     }
 
-    // TODO: calc KPI
+    const talkRatings = await TalkRatingModel.find().sort({created:1}).exec()
+    const messages = await MessageModel.find().sort({date:1}).exec()
+    const qaEntries = await QAEntryModel.find().sort({date:1}).exec()
+
+    dates.forEach((date, index) => {
+      const day : KPIDatasetDay = { day: index+1, values: [] }
+      dataset.days.push(day)
+      for (let hour = 9; hour <= 18; hour++) {
+        minuteSlots.forEach((minuteSlot,index) => {
+          const fromDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minuteSlot, 0)
+          const toDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minuteSlots[index+1] ?? 60, 0)
+
+          const countTalkRatings = talkRatings.filter(item => item.created >= fromDate && item.created < toDate).length
+          const countMessages = messages.filter(item => item.date >= fromDate && item.date < toDate).length
+          const countQAEntries = qaEntries.filter(item => item.date >= fromDate && item.date < toDate).length
+
+          day.values.push({
+            x: hour + (minuteSlot / 60),
+            y: countTalkRatings + countMessages + countQAEntries
+          })
+        })
+      }
+    })
 
     socket.emit('adminKPIDataset', dataset)
   }
 
-  async function talkQAEntriesKPI() {
+  /**
+   * Average talk rating per talk.
+   */
+  async function talkRatingKPI(dates: Date[]) {
     const dataset : KPIDataset = {
-      title: 'Talk Q&A Entries',
+      title: 'Average Talk Rating',
       xAxisTitle: 'Talk Index',
-      yAxisTitle: '# Q&A Entries',
+      yAxisTitle: 'Average Rating',
       days: []
     }
 

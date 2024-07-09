@@ -152,5 +152,10 @@ export interface KPIDataset {
 
 export interface KPIDatasetDay {
   day: number
-  values: { [key: number]: number }
+  values: KPIDataPoint[]
+}
+
+export interface KPIDataPoint {
+  x: number
+  y: number
 }

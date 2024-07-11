@@ -123,3 +123,19 @@ const QAEntrySchema = new mongoose.Schema<QAEntry>({
 })
 QAEntrySchema.index({userid: 1, username: 1})
 export const QAEntryModel = mongoose.model<QAEntry>('qa-entry', QAEntrySchema)
+
+export interface QAEntryLike {
+  _id: string
+  talkId: string
+  qaEntryId: string
+  date: Date
+  userid: string
+}
+const QAEntryLikeSchema = new mongoose.Schema<QAEntryLike>({
+  _id: { type: String, required:true },
+  talkId: { type: String, required:true, index:true },
+  qaEntryId: { type: String, required:true, index:true },
+  date: { type: Date, default: Date.now, index:true },
+  userid: { type: String, required:true, index:true }
+})
+export const QAEntryLikeModel = mongoose.model<QAEntryLike>('qa-entry-like', QAEntryLikeSchema)

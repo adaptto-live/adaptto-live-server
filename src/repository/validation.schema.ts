@@ -58,7 +58,7 @@ export const qaEntryToServerObject = Joi.object({
   talkId: talkIdString.required(),
   text: messageString.required(),
   anonymous: Joi.bool(),
-  replyTo: talkIdString,
+  replyTo: uuidString,
   highlight: Joi.bool(),
   answered: Joi.bool()
 })
@@ -66,6 +66,12 @@ export const qaEntryToServerObject = Joi.object({
 export const qaEntryAnsweredToServerObject = Joi.object({
   id: uuidString.required(),
   answered: Joi.bool()
+})
+
+export const qaEntryLikeToServerObject = Joi.object({
+  id: uuidString.required(),
+  talkId: talkIdString.required(),
+  qaEntryId: uuidString.required()
 })
 
 export const userObject = Joi.object({

@@ -29,8 +29,9 @@ export interface ClientToServerEvents {
   messageDelete: (id: string, callback: (result: OperationResult) => void) => void
   qaEntry: (qaEntry: QAEntryToServer, callback: (result: OperationResult) => void) => void
   qaEntryUpdate: (qaEntry: QAEntryToServer, callback: (result: OperationResult) => void) => void
-  qaEntryUpdateAnswered: (qaEntry: QAEntryAnsweredToServer, callback: (result: OperationResult) => void) => void
+  qaEntryUpdateAnswered: (answered: QAEntryAnsweredToServer, callback: (result: OperationResult) => void) => void
   qaEntryDelete: (id: string, callback: (result: OperationResult) => void) => void
+  qaEntryLike: (like: QAEntryLikeToServer, callback: (result: OperationResult) => void) => void
   adminGetLoginCodes: () => void
   adminGetUsers: () => void
   adminUpdateUser: (user: UserUpdate, callback: (result: OperationResult) => void) => void
@@ -91,6 +92,10 @@ export interface QAEntryAnsweredToServer {
   answered?: boolean
 }
 
+export interface QAEntryLikeToServer {
+  id: string
+}
+
 export interface QAEntryFromServer {
   id: string
   date: Date
@@ -100,6 +105,7 @@ export interface QAEntryFromServer {
   replyTo?: string
   highlight?: boolean
   answered?: boolean
+  likeUserIds: string[]
 }
 
 export interface LoginCode {

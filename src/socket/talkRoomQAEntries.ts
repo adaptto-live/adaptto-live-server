@@ -52,9 +52,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
       message.answered = answered
       await message.save()
       callback({success: true})
-      const likeUserIds = await getLikeUserIds(id)
-      socket.in(message.talkId).emit('qaEntryUpdate', 
-        {id, date: message.date, userid: message.userid, username: message.username, text: message.text, highlight: message.highlight, answered: message.answered, likeUserIds})
+      emitMessageWithLikeUserIds(message)
     }
     else {
       callback({success: false, error: `QA entry ${id} not found or not allowed to update.`})
@@ -76,9 +74,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
       message.answered = answered
       await message.save()
       callback({success: true})
-      const likeUserIds = await getLikeUserIds(id)
-      socket.in(message.talkId).emit('qaEntryUpdate', 
-        {id, date: message.date, userid: message.userid, username: message.username, text: message.text, highlight: message.highlight, answered: message.answered, likeUserIds})
+      emitMessageWithLikeUserIds(message)
     }
     else {
       callback({success: false, error: `QA entry ${id} not found or not allowed to update.`})
@@ -135,9 +131,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
 
     // send updated QA entry with updated user likes
     callback({success: true})
-    const likeUserIds = await getLikeUserIds(id)
-    socket.in(message.talkId).emit('qaEntryUpdate', 
-      {id, date: message.date, userid: message.userid, username: message.username, text: message.text, highlight: message.highlight, answered: message.answered, likeUserIds})
+    emitMessageWithLikeUserIds(message)
 }
 
   function isEditAllowed(message: QAEntry) : boolean {
@@ -146,6 +140,12 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
 
   function isUpdateAnsweredAllowed(message: QAEntry) : boolean {
     return message != null && ((message.userid == userid) || admin || qaadmin)
+  }
+
+  async function emitMessageWithLikeUserIds(message: QAEntry) {
+    const likeUserIds = await getLikeUserIds(message._id)
+    socket.in(message.talkId).emit('qaEntryUpdate', 
+      {id:message._id, date: message.date, userid: message.userid, username: message.username, text: message.text, highlight: message.highlight, answered: message.answered, likeUserIds})
   }
 
 }

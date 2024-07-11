@@ -121,7 +121,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     }
 
     // store new like or remove existing like
-    const existingLike = await QAEntryLikeModel.findOne({id, userid}).exec()
+    const existingLike = await QAEntryLikeModel.findOne({qaEntryId:id, userid}).exec()
     if (existingLike != null) {
       log.debug(`User ${username} unlikes Q&A ${id}`)
       await existingLike.deleteOne()

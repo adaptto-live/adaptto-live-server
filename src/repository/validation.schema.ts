@@ -69,9 +69,7 @@ export const qaEntryAnsweredToServerObject = Joi.object({
 })
 
 export const qaEntryLikeToServerObject = Joi.object({
-  id: uuidString.required(),
-  talkId: talkIdString.required(),
-  qaEntryId: uuidString.required()
+  id: uuidString.required()
 })
 
 export const userObject = Joi.object({

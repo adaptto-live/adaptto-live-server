@@ -138,4 +138,5 @@ const QAEntryLikeSchema = new mongoose.Schema<QAEntryLike>({
   date: { type: Date, default: Date.now, index:true },
   userid: { type: String, required:true, index:true }
 })
+QAEntrySchema.index({qaEntryId: 1, userid: 1})
 export const QAEntryLikeModel = mongoose.model<QAEntryLike>('qa-entry-like', QAEntryLikeSchema)

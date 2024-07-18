@@ -30,8 +30,11 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     const date = new Date()
     const qaEntryUsername = anonymous ? undefined : username
 
-    const maxEntryIndex = (await QAEntryModel.findOne({talkId}).sort({entryIndex:-1}).exec())?.entryIndex ?? 0
-    const entryIndex = maxEntryIndex + 1
+    let entryIndex = 0
+    if (!replyTo) {
+      const maxEntryIndex = (await QAEntryModel.findOne({talkId}).sort({entryIndex:-1}).exec())?.entryIndex ?? 0
+      entryIndex = maxEntryIndex + 1
+    }
 
     await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text, entryIndex, replyTo, highlight, answered })
     callback({success: true}, entryIndex)

@@ -14,6 +14,9 @@ const loginTokenString = Joi.string()
 const messageString = Joi.string()
   .max(1000)  // in client, only 500 allowed, but emojis are usually counted as 2
 
+const qaEntryMessageString = Joi.string()
+  .max(2000)  // in client, only 1000 allowed, but emojis are usually counted as 2
+
 const talkModeratorNotesString = Joi.string()
   .max(10000)  // in client, only 5000 allowed, but emojis are usually counted as 2
   .allow('')
@@ -56,9 +59,9 @@ export const messageToServerObject = Joi.object({
 export const qaEntryToServerObject = Joi.object({
   id: uuidString.required(),
   talkId: talkIdString.required(),
-  text: messageString.required(),
+  text: qaEntryMessageString.required(),
   anonymous: Joi.bool(),
-  replyTo: talkIdString,
+  replyTo: uuidString,
   highlight: Joi.bool(),
   answered: Joi.bool()
 })
@@ -66,6 +69,10 @@ export const qaEntryToServerObject = Joi.object({
 export const qaEntryAnsweredToServerObject = Joi.object({
   id: uuidString.required(),
   answered: Joi.bool()
+})
+
+export const qaEntryLikeToServerObject = Joi.object({
+  id: uuidString.required()
 })
 
 export const userObject = Joi.object({

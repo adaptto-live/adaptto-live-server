@@ -1,10 +1,11 @@
 import { Socket } from 'socket.io'
-import { ClientToServerEvents, OperationResult, QAEntryAnsweredToServer, QAEntryToServer, ServerToClientEvents } from './socket.types'
+import { ClientToServerEvents, OperationResult, QAEntryAnsweredToServer, QAEntryLikeToServer, QAEntryToServer, ServerToClientEvents } from './socket.types'
 import { InterServerEvents, SocketData } from './socket.server.types'
-import { QAEntry, QAEntryModel, UserModel } from '../repository/mongodb.schema'
+import { QAEntry, QAEntryLikeModel, QAEntryModel, UserModel } from '../repository/mongodb.schema'
 import log from '../util/log'
-import { qaEntryAnsweredToServerObject, qaEntryToServerObject, uuidString } from '../repository/validation.schema'
+import { qaEntryAnsweredToServerObject, qaEntryLikeToServerObject, qaEntryToServerObject, uuidString } from '../repository/validation.schema'
 import isInputValid from '../util/isInputValid'
+import { v4 as uuidv4 } from 'uuid'
 
 export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { userid, username, admin, qaadmin } = socket.data
@@ -17,8 +18,9 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   socket.on('qaEntryUpdate', handleUpdate)
   socket.on('qaEntryUpdateAnswered', handleUpdateAnswered)
   socket.on('qaEntryDelete', handleDelete)
+  socket.on('qaEntryLike', handleLike)
 
-  async function handleNew(newQaEntry: QAEntryToServer, callback: (result: OperationResult) => void) {
+  async function handleNew(newQaEntry: QAEntryToServer, callback: (result: OperationResult, entryIndex?: number) => void) {
     if (!isInputValid(qaEntryToServerObject, newQaEntry, callback)) {
       return
     }
@@ -27,9 +29,13 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     log.debug(`User ${username} created Q&A entry in ${talkId}: ${text}`)
     const date = new Date()
     const qaEntryUsername = anonymous ? undefined : username
-    await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text, replyTo, highlight, answered })
-    callback({success: true})
-    socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, replyTo, highlight, answered}])
+
+    const maxEntryIndex = (await QAEntryModel.findOne({talkId}).sort({entryIndex:-1}).exec())?.entryIndex ?? 0
+    const entryIndex = maxEntryIndex + 1
+
+    await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text, entryIndex, replyTo, highlight, answered })
+    callback({success: true}, entryIndex)
+    socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, entryIndex, replyTo, highlight, answered, likeUserIds: []}])
   }
 
   /**
@@ -50,8 +56,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
       message.answered = answered
       await message.save()
       callback({success: true})
-      socket.in(message.talkId).emit('qaEntryUpdate', 
-        {id, date: message.date, userid: message.userid, username: message.username, text: message.text, highlight: message.highlight, answered: message.answered})
+      emitMessageWithLikeUserIds(message)
     }
     else {
       callback({success: false, error: `QA entry ${id} not found or not allowed to update.`})
@@ -73,8 +78,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
       message.answered = answered
       await message.save()
       callback({success: true})
-      socket.in(message.talkId).emit('qaEntryUpdate', 
-        {id, date: message.date, userid: message.userid, username: message.username, text: message.text, highlight: message.highlight, answered: message.answered})
+      emitMessageWithLikeUserIds(message)
     }
     else {
       callback({success: false, error: `QA entry ${id} not found or not allowed to update.`})
@@ -99,12 +103,54 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     }
   }
 
+  /**
+   * Like/unlike Q&A entry by user.
+   */
+  async function handleLike(like: QAEntryLikeToServer, callback: (result: OperationResult) => void) {
+    if (!isInputValid(qaEntryLikeToServerObject, like, callback)) {
+      return
+    }
+
+    const { id } = like
+
+    // fetch QA entry
+    const message = await QAEntryModel.findById(id).exec()
+    if (message == null) {
+      callback({success: false, error: `QA entry ${id} not found.`})
+      return
+    }
+
+    // store new like or remove existing like
+    const existingLike = await QAEntryLikeModel.findOne({qaEntryId:id, userid}).exec()
+    if (existingLike != null) {
+      log.debug(`User ${username} unlikes Q&A ${id}`)
+      await existingLike.deleteOne()
+    }
+    else {
+      log.debug(`User ${username} likes Q&A ${id}`)
+      const likeId = uuidv4()
+      const date = new Date()
+      await QAEntryLikeModel.create({ _id:likeId, talkId:message.talkId, qaEntryId:id, date, userid })
+    }
+
+    // send updated QA entry with updated user likes
+    callback({success: true})
+    emitMessageWithLikeUserIds(message)
+}
+
   function isEditAllowed(message: QAEntry) : boolean {
     return message != null && ((message.userid == userid) || admin)
   }
 
   function isUpdateAnsweredAllowed(message: QAEntry) : boolean {
     return message != null && ((message.userid == userid) || admin || qaadmin)
+  }
+
+  async function emitMessageWithLikeUserIds(message: QAEntry) {
+    const likeUserIds = await getLikeUserIds(message._id)
+    socket.in(message.talkId).emit('qaEntryUpdate', 
+      {id:message._id, date: message.date, userid: message.userid, username: message.username, text: message.text, entryIndex: message.entryIndex ?? 0,
+          replyTo: message.replyTo, highlight: message.highlight, answered: message.answered, likeUserIds})
   }
 
 }
@@ -117,4 +163,9 @@ async function getUsernameForUpdate(userid: string, anonymous?: boolean) : Promi
     }
   }
   return undefined
+}
+
+async function getLikeUserIds(qaEntryId: string) : Promise<string[]> {
+  const likes = await QAEntryLikeModel.find({qaEntryId}).exec()
+  return likes.map(like => like.userid)
 }

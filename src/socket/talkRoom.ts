@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io'
-import { ClientToServerEvents, ServerToClientEvents } from './socket.types'
+import { ClientToServerEvents, QAEntryFromServer, ServerToClientEvents } from './socket.types'
 import { InterServerEvents, SocketData } from './socket.server.types'
-import { MessageModel, QAEntryModel, TalkModeratorNotesModel } from '../repository/mongodb.schema'
+import { MessageModel, QAEntryLikeModel, QAEntryModel, TalkModeratorNotesModel } from '../repository/mongodb.schema'
 import log from '../util/log'
 import RoomUsers from '../util/RoomUsers'
 
@@ -29,8 +29,10 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
       socket.emit('messages', messages)
     }
     const qaEntries = (await QAEntryModel.find({talkId}).sort({date:1}).exec())
-      .map(({id, date, userid, username, text, replyTo, highlight, answered}) => ({id, date, userid, username, text, replyTo, highlight, answered}))
+      .map(({id, date, userid, username, text, entryIndex, replyTo, highlight, answered}) => ({id, date, userid, username, text,
+          entryIndex: entryIndex ?? 0, replyTo, highlight, answered, likeUserIds:[]}))
     if (qaEntries.length > 0) {
+      await applyLikeUserIds(talkId, qaEntries)
       socket.emit('qaEntries', qaEntries)
     }
 
@@ -56,4 +58,11 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
         io.to(talkId).emit('roomUsers', usernames))
   })
 
+}
+
+async function applyLikeUserIds(talkId: string, qaEntries: QAEntryFromServer[]) {
+  const likes = await QAEntryLikeModel.find({talkId}).exec()
+  likes.forEach(({qaEntryId, userid}) => {
+    qaEntries.find(qaEntry => qaEntry.id === qaEntryId)?.likeUserIds.push(userid)
+  })
 }

@@ -20,7 +20,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   socket.on('qaEntryDelete', handleDelete)
   socket.on('qaEntryLike', handleLike)
 
-  async function handleNew(newQaEntry: QAEntryToServer, callback: (result: OperationResult) => void) {
+  async function handleNew(newQaEntry: QAEntryToServer, callback: (result: OperationResult, entryIndex?: number) => void) {
     if (!isInputValid(qaEntryToServerObject, newQaEntry, callback)) {
       return
     }
@@ -29,9 +29,13 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
     log.debug(`User ${username} created Q&A entry in ${talkId}: ${text}`)
     const date = new Date()
     const qaEntryUsername = anonymous ? undefined : username
-    await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text, replyTo, highlight, answered })
-    callback({success: true})
-    socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, replyTo, highlight, answered, likeUserIds: []}])
+
+    const maxEntryIndex = (await QAEntryModel.findOne({talkId}).sort({entryIndex:-1}).exec())?.entryIndex ?? 0
+    const entryIndex = maxEntryIndex + 1
+
+    await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text, entryIndex, replyTo, highlight, answered })
+    callback({success: true}, entryIndex)
+    socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, entryIndex, replyTo, highlight, answered, likeUserIds: []}])
   }
 
   /**
@@ -145,7 +149,8 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   async function emitMessageWithLikeUserIds(message: QAEntry) {
     const likeUserIds = await getLikeUserIds(message._id)
     socket.in(message.talkId).emit('qaEntryUpdate', 
-      {id:message._id, date: message.date, userid: message.userid, username: message.username, text: message.text, highlight: message.highlight, answered: message.answered, likeUserIds})
+      {id:message._id, date: message.date, userid: message.userid, username: message.username, text: message.text, entryIndex: message.entryIndex ?? 0,
+          replyTo: message.replyTo, highlight: message.highlight, answered: message.answered, likeUserIds})
   }
 
 }

@@ -29,7 +29,8 @@ export async function handleTalkRoom(io : Server<ClientToServerEvents,ServerToCl
       socket.emit('messages', messages)
     }
     const qaEntries = (await QAEntryModel.find({talkId}).sort({date:1}).exec())
-      .map(({id, date, userid, username, text, replyTo, highlight, answered}) => ({id, date, userid, username, text, replyTo, highlight, answered, likeUserIds:[]}))
+      .map(({id, date, userid, username, text, entryIndex, replyTo, highlight, answered}) => ({id, date, userid, username, text,
+          entryIndex: entryIndex ?? 0, replyTo, highlight, answered, likeUserIds:[]}))
     if (qaEntries.length > 0) {
       await applyLikeUserIds(talkId, qaEntries)
       socket.emit('qaEntries', qaEntries)

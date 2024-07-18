@@ -27,7 +27,7 @@ export interface ClientToServerEvents {
   message: (message: MessageToServer, callback: (result: OperationResult) => void) => void
   messageUpdate: (message: MessageToServer, callback: (result: OperationResult) => void) => void
   messageDelete: (id: string, callback: (result: OperationResult) => void) => void
-  qaEntry: (qaEntry: QAEntryToServer, callback: (result: OperationResult) => void) => void
+  qaEntry: (qaEntry: QAEntryToServer, callback: (result: OperationResult, entryIndex?: number) => void) => void
   qaEntryUpdate: (qaEntry: QAEntryToServer, callback: (result: OperationResult) => void) => void
   qaEntryUpdateAnswered: (answered: QAEntryAnsweredToServer, callback: (result: OperationResult) => void) => void
   qaEntryDelete: (id: string, callback: (result: OperationResult) => void) => void
@@ -102,6 +102,7 @@ export interface QAEntryFromServer {
   userid: string
   username?: string
   text: string
+  entryIndex: number
   replyTo?: string
   highlight?: boolean
   answered?: boolean

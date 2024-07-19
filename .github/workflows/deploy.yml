@@ -21,7 +21,7 @@ jobs:
 
     - uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 20
         cache: npm
 
     - name: npm install, build
@@ -32,7 +32,7 @@ jobs:
 
     - name: Deploy to Azure Web App
       id: deploy-to-webapp
-      uses: azure/webapps-deploy@v2
+      uses: azure/webapps-deploy@v3
       with:
         app-name: app-adaptto-live-001-prd-weu
         slot-name: Production

@@ -3,6 +3,7 @@ export interface ServerToClientEvents {
   currentTalk: (talkId: string) => void
   talkRatings: (talkRatings: TalkRating[]) => void
   roomUsers: (usernames : string[]) => void
+  talkModeratorNotes: (notes: ModeratorTalkNotesFromServer) => void
   messages: (messages: MessageFromServer[]) => void
   messageUpdate: (message: MessageFromServer) => void
   messageDelete: (id: string) => void
@@ -13,6 +14,7 @@ export interface ServerToClientEvents {
   adminUsers: (users: User[]) => void
   adminTalkRatings: (ratings: AverageTalkRating[]) => void
   adminStatistics: (statistics: Statistics) => void
+  adminKPIDataset: (kpiDataset: KPIDataset) => void
   userBlocked: (userid: string) => void
 }
 
@@ -21,18 +23,21 @@ export interface ClientToServerEvents {
   talkRating: (talkRating: TalkRating, callback: (result: OperationResult) => void) => void
   roomEnter: (talkId: string) => void
   roomLeave: (talkId: string) => void
+  talkModeratorNotes: (notes: ModeratorTalkNotesToServer, callback: (result: OperationResult) => void) => void
   message: (message: MessageToServer, callback: (result: OperationResult) => void) => void
   messageUpdate: (message: MessageToServer, callback: (result: OperationResult) => void) => void
   messageDelete: (id: string, callback: (result: OperationResult) => void) => void
-  qaEntry: (qaEntry: QAEntryToServer, callback: (result: OperationResult) => void) => void
+  qaEntry: (qaEntry: QAEntryToServer, callback: (result: OperationResult, entryIndex?: number) => void) => void
   qaEntryUpdate: (qaEntry: QAEntryToServer, callback: (result: OperationResult) => void) => void
-  qaEntryUpdateAnswered: (qaEntry: QAEntryAnsweredToServer, callback: (result: OperationResult) => void) => void
+  qaEntryUpdateAnswered: (answered: QAEntryAnsweredToServer, callback: (result: OperationResult) => void) => void
   qaEntryDelete: (id: string, callback: (result: OperationResult) => void) => void
+  qaEntryLike: (like: QAEntryLikeToServer, callback: (result: OperationResult) => void) => void
   adminGetLoginCodes: () => void
   adminGetUsers: () => void
   adminUpdateUser: (user: UserUpdate, callback: (result: OperationResult) => void) => void
   adminGetTalkRatings: () => void
   adminGetStatistics: () => void
+  adminGetKPI: (dayDates: Date[]) => void
 }
 
 export interface OperationResult {
@@ -44,6 +49,16 @@ export interface TalkRating {
   talkId: string
   rating?: number
   comment? : string
+}
+
+export interface ModeratorTalkNotesFromServer {
+  text: string
+  updated: Date
+}
+
+export interface ModeratorTalkNotesToServer {
+  talkId: string
+  text: string
 }
 
 export interface MessageToServer {
@@ -77,15 +92,21 @@ export interface QAEntryAnsweredToServer {
   answered?: boolean
 }
 
+export interface QAEntryLikeToServer {
+  id: string
+}
+
 export interface QAEntryFromServer {
   id: string
   date: Date
   userid: string
   username?: string
   text: string
+  entryIndex: number
   replyTo?: string
   highlight?: boolean
   answered?: boolean
+  likeUserIds: string[]
 }
 
 export interface LoginCode {
@@ -127,4 +148,21 @@ export interface Statistics {
   numTalkRatings: number
   numMessages: number
   numQAEntries: number
+}
+
+export interface KPIDataset {
+  title: string
+  xAxisTitle: string
+  yAxisTitle: string
+  days: KPIDatasetDay[]
+}
+
+export interface KPIDatasetDay {
+  day: number
+  values: KPIDataPoint[]
+}
+
+export interface KPIDataPoint {
+  x: number
+  y: number
 }

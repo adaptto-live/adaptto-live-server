@@ -18,6 +18,8 @@ import { version} from '../package.json'
 import { handleTalkRoomMessages } from './socket/talkRoomMessages'
 import { handleTalkRoomQAEntries } from './socket/talkRoomQAEntries'
 import { handleAdminLoginCodeManagement } from './socket/admin/loginCodeManagement'
+import { handleTalkRoomModeratorNotes } from './socket/talkRoomModeratorNotes'
+import { handleAdminKPI } from './socket/admin/kpi'
 
 // read env configuration
 config()
@@ -47,10 +49,12 @@ io.on('connection', async (socket) => {
   await handleTalkRoom(io, socket)
   await handleTalkRoomMessages(socket)
   await handleTalkRoomQAEntries(socket)
+  await handleTalkRoomModeratorNotes(socket)
   await handleAdminLoginCodeManagement(socket)
   await handleAdminUserManagement(socket)
   await handleAdminTalkRatings(socket)
   await handleAdminStatistics(socket)
+  await handleAdminKPI(socket)
 })
 
 async function run() {

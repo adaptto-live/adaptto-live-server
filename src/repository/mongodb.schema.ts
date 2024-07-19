@@ -65,6 +65,20 @@ const TalkRatingSchema = new mongoose.Schema<TalkRating>({
 })
 export const TalkRatingModel = mongoose.model<TalkRating>('talk-rating', TalkRatingSchema)
 
+export interface TalkModeratorNotes {
+  _id: string
+  talkId: string
+  text: string
+  updated: Date
+}
+const TalkModeratorNotesSchema = new mongoose.Schema<TalkModeratorNotes>({
+  _id: { type: String, required:true },
+  talkId: { type: String, required:true, index:true },
+  text: { type: String },
+  updated: { type: Date, default: Date.now }
+})
+export const TalkModeratorNotesModel = mongoose.model<TalkModeratorNotes>('talk-moderator-notes', TalkModeratorNotesSchema)
+
 export interface Message {
   _id: string
   talkId: string
@@ -92,6 +106,7 @@ export interface QAEntry {
   userid: string
   username?: string
   text: string
+  entryIndex?: number
   replyTo?: string
   highlight?: boolean
   answered?: boolean
@@ -103,9 +118,27 @@ const QAEntrySchema = new mongoose.Schema<QAEntry>({
   userid: { type: String, required:true, index:true },
   username: { type: String, required:false },
   text: { type: String, required:true },
+  entryIndex: { type: Number, required:false, index:true },
   replyTo: { type: String, required:false, index:true },
   highlight: { type: Boolean, required:false },
   answered: { type: Boolean, required:false }
 })
 QAEntrySchema.index({userid: 1, username: 1})
 export const QAEntryModel = mongoose.model<QAEntry>('qa-entry', QAEntrySchema)
+
+export interface QAEntryLike {
+  _id: string
+  talkId: string
+  qaEntryId: string
+  date: Date
+  userid: string
+}
+const QAEntryLikeSchema = new mongoose.Schema<QAEntryLike>({
+  _id: { type: String, required:true },
+  talkId: { type: String, required:true, index:true },
+  qaEntryId: { type: String, required:true, index:true },
+  date: { type: Date, default: Date.now, index:true },
+  userid: { type: String, required:true, index:true }
+})
+QAEntrySchema.index({qaEntryId: 1, userid: 1})
+export const QAEntryLikeModel = mongoose.model<QAEntryLike>('qa-entry-like', QAEntryLikeSchema)

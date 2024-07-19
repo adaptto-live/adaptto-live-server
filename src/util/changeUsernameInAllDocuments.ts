@@ -1,4 +1,4 @@
-import { MessageModel, QAEntryModel } from "../repository/mongodb.schema"
+import { MessageModel, QAEntryModel } from '../repository/mongodb.schema'
 import log from './log'
 
 export default async function changeUsernameInAllDocuments(userid: string, username: string) {

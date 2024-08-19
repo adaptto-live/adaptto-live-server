@@ -48,7 +48,7 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
       socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, entryIndex, replyTo, highlight, answered, likeUserIds: []}])
     }
     catch (error) {
-      if ((error instanceof MongoError) && (error as MongoError).code === 11000) {
+      if ((error instanceof MongoError) && error.code === 11000) {
         log.debug(`User ${username} tried to create Q&A entry in ${talkId}, but entryIndex is a duplicate: ${entryIndex}; try again...`)
         handleNew(newQaEntry, callback, retryCount + 1)
         return

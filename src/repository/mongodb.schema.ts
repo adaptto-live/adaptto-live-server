@@ -124,6 +124,7 @@ const QAEntrySchema = new mongoose.Schema<QAEntry>({
   answered: { type: Boolean, required:false }
 })
 QAEntrySchema.index({userid: 1, username: 1})
+QAEntrySchema.index({talkId: 1, entryIndex: 1}, { unique: true, partialFilterExpression: { entryIndex: { $gt: 0 } } })
 export const QAEntryModel = mongoose.model<QAEntry>('qa-entry', QAEntrySchema)
 
 export interface QAEntryLike {

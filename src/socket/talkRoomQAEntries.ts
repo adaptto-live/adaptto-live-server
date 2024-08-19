@@ -6,6 +6,7 @@ import log from '../util/log'
 import { qaEntryAnsweredToServerObject, qaEntryLikeToServerObject, qaEntryToServerObject, uuidString } from '../repository/validation.schema'
 import isInputValid from '../util/isInputValid'
 import { v4 as uuidv4 } from 'uuid'
+import { MongoError } from 'mongodb'
 
 export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { userid, username, admin, qaadmin } = socket.data
@@ -20,15 +21,19 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
   socket.on('qaEntryDelete', handleDelete)
   socket.on('qaEntryLike', handleLike)
 
-  async function handleNew(newQaEntry: QAEntryToServer, callback: (result: OperationResult, entryIndex?: number) => void) {
+  async function handleNew(newQaEntry: QAEntryToServer, callback: (result: OperationResult, entryIndex?: number) => void, retryCount: number = 1) {
     if (!isInputValid(qaEntryToServerObject, newQaEntry, callback)) {
       return
     }
-
     const { id, talkId, text, anonymous, replyTo, highlight, answered } = newQaEntry
-    log.debug(`User ${username} created Q&A entry in ${talkId}: ${text}`)
     const date = new Date()
     const qaEntryUsername = anonymous ? undefined : username
+
+    if (retryCount > 100) {
+      log.error(`User ${username} tried to create Q&A entry in ${talkId}, unable to find unique entryIndex after 100 retries.`)
+      callback({success: false, error: 'Error creating Q&A entry: Unable to find unique entryIndex.'})
+      return
+    }
 
     let entryIndex = 0
     if (!replyTo) {
@@ -36,9 +41,21 @@ export async function handleTalkRoomQAEntries(socket : Socket<ClientToServerEven
       entryIndex = maxEntryIndex + 1
     }
 
-    await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text, entryIndex, replyTo, highlight, answered })
-    callback({success: true}, entryIndex)
-    socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, entryIndex, replyTo, highlight, answered, likeUserIds: []}])
+    try {
+      await QAEntryModel.create({ _id:id, talkId, date, userid, username: qaEntryUsername, text, entryIndex, replyTo, highlight, answered })
+      log.debug(`User ${username} created Q&A entry in ${talkId}: ${text}`)
+      callback({success: true}, entryIndex)
+      socket.in(talkId).emit('qaEntries', [{id, date, userid, username: qaEntryUsername, text, entryIndex, replyTo, highlight, answered, likeUserIds: []}])
+    }
+    catch (error) {
+      if ((error instanceof MongoError) && (error as MongoError).code === 11000) {
+        log.debug(`User ${username} tried to create Q&A entry in ${talkId}, but entryIndex is a duplicate: ${entryIndex}; try again...`)
+        handleNew(newQaEntry, callback, retryCount + 1)
+        return
+      }
+      log.error(`User ${username} tried to create Q&A entry in ${talkId}, resulted in error: ${error}`)
+      callback({success: false, error: `Error creating Q&A entry: ${error}`})
+    }
   }
 
   /**

@@ -1,4 +1,4 @@
-export interface InterServerEvents {} // eslint-disable-line @typescript-eslint/no-empty-interface
+export interface InterServerEvents {} // eslint-disable-line @typescript-eslint/no-empty-interface, @typescript-eslint/no-empty-object-type
 
 export interface SocketData {
   userid: string

@@ -1,0 +1,45 @@
+db.runCommand({
+  customAction: "CreateCollection",
+  collection: "qa-entries",
+  indexes: [
+    {
+      name: "_id_",
+      key: { "_id": 1 },
+      unique: true
+    },
+    {
+      name: "talkId_1", 
+      key: { "talkId": 1 }
+    },
+    {
+      name: "date_1", 
+      key: { "date": 1 }
+    },
+    {
+      name: "userid_1", 
+      key: { "userid": 1 }
+    },
+    {
+      name: "entryIndex_1", 
+      key: { "entryIndex": 1 }
+    },
+    {
+      name: "replyTo_1", 
+      key: { "replyTo": 1 }
+    },
+    {
+      name: "userid_1_username_1", 
+      key: { "userid": 1, "username": 1 }
+    },
+    {
+      name: "qaEntryId_1_userid_1", 
+      key: { "qaEntryId": 1, "userid": 1 }
+    },
+    {
+      name: "talkId_1_entryIndex_1", 
+      key: { "talkId": 1, "entryIndex": -1 },
+      unique: true,
+      partialFilterExpression: { "entryIndex": { "$gt": 0 } }
+    }
+  ]
+})

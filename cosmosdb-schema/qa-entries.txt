@@ -1,3 +1,7 @@
+use adaptto-live
+
+db["qa-entries"].drop()
+
 db.runCommand({
   customAction: "CreateCollection",
   collection: "qa-entries",

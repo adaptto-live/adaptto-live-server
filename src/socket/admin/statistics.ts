@@ -5,10 +5,10 @@ import log from '../../util/log'
 import { LoginCodeModel, MessageModel, QAEntryModel, TalkRatingModel, UserModel } from '../../repository/mongodb.schema'
 
 export async function handleAdminStatistics(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
-  const { admin } = socket.data
+  const { admin, qaadmin } = socket.data
 
   // admin-only operations
-  if (!admin) {
+  if (!(admin || qaadmin)) {
     return
   }
 

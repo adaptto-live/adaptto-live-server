@@ -1,6 +1,6 @@
 {
   "name": "adaptto-live-server",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "private": true,
   "scripts": {
     "dev": "nodemon src/index.ts | pino-pretty",

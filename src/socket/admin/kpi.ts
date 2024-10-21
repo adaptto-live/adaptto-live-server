@@ -5,11 +5,11 @@ import log from '../../util/log'
 import { MessageModel, QAEntryModel, TalkRatingModel, UserModel } from '../../repository/mongodb.schema'
 
 export async function handleAdminKPI(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
-  const { admin } = socket.data
+  const { admin, qaadmin } = socket.data
   const minuteSlots = [0, 30]
 
   // admin-only operations
-  if (!admin) {
+  if (!(admin || qaadmin)) {
     return
   }
 

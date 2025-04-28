@@ -37,7 +37,7 @@ jobs:
     - run: npm run lint
     - run: npm run build
 
-    - uses: SonarSource/sonarcloud-github-action@master
+    - uses: SonarSource/sonarqube-scan-action@v5
       if: env.SONAR_TOKEN != null
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

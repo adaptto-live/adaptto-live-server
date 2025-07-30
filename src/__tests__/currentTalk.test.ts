@@ -46,6 +46,39 @@ describe('Current Talk Handler', () => {
     }
   }
 
+  /**
+   * Helper to test socket event handlers by executing the handler with specified parameters
+   * and waiting for it to complete before proceeding with assertions
+   * 
+   * @param mockSocket - The mock socket object
+   * @param handlerFunction - The socket handler function to test (e.g., handleCurrentTalk)
+   * @param eventName - The event name to intercept (e.g., 'currentTalk')
+   * @param handlerParams - Array of parameters to pass to the handler function
+   * @returns Promise that resolves when the handler has completed execution
+   */
+  async function executeSocketHandler(
+    mockSocket: any,
+    handlerFunction: (socket: any) => Promise<void>, 
+    eventName: string, 
+    handlerParams: any[] = []
+  ): Promise<void> {
+    return new Promise<void>(async resolve => {
+      // Mock the 'on' method to capture and execute the handler
+      mockSocket.on.mockImplementation((event: string, handler: any) => {
+        if (event === eventName) {
+          // Execute the handler and resolve when done
+          (async () => {
+            await handler(...handlerParams)
+            resolve()
+          })();
+        }
+      })
+      
+      // Call the function that registers the handler
+      await handlerFunction(mockSocket)
+    })
+  }
+
   // Test case 1: Should emit current talk on login if one exists
   test('should emit current talk on login if one exists', async () => {
     // Arrange
@@ -120,25 +153,13 @@ describe('Current Talk Handler', () => {
     const newTalkId = 'new-talk-456'
     const mockCallback = jest.fn()
     
-    // Create a promise to ensure we wait for the async handler
-    const handlerPromise = new Promise<void>(async resolve => {
-      // Mock the 'on' method to capture and execute the handler
-      mockSocket.on.mockImplementation((event, handler) => {
-        if (event === 'currentTalk') {
-          // Execute the handler and resolve when done
-          (async () => {
-            await handler(newTalkId, mockCallback)
-            resolve()
-          })();
-        }
-      })
-      
-      // Call the function that registers the handler
-      await handleCurrentTalk(mockSocket as any)
-    })
-    
-    // Wait for the handler to complete
-    await handlerPromise
+    // Use the utility method to execute the handler and wait for completion
+    await executeSocketHandler(
+      mockSocket as any, 
+      handleCurrentTalk, 
+      'currentTalk', 
+      [newTalkId, mockCallback]
+    )
     
     // Assert results after handler execution
     expect(mockCallback).toHaveBeenCalledWith({ success: true })
@@ -157,25 +178,13 @@ describe('Current Talk Handler', () => {
     const invalidTalkId = '$#!%'
     const mockCallback = jest.fn()
     
-    // Create a promise to ensure we wait for the async handler
-    const handlerPromise = new Promise<void>(async resolve => {
-      // Mock the 'on' method to capture and execute the handler
-      mockSocket.on.mockImplementation((event, handler) => {
-        if (event === 'currentTalk') {
-          // Execute the handler and resolve when done
-          (async () => {
-            await handler(invalidTalkId, mockCallback)
-            resolve()
-          })();
-        }
-      })
-      
-      // Call the function that registers the handler
-      await handleCurrentTalk(mockSocket as any)
-    })
-    
-    // Wait for the handler to complete
-    await handlerPromise
+    // Use the utility method to execute the handler and wait for completion
+    await executeSocketHandler(
+      mockSocket as any, 
+      handleCurrentTalk, 
+      'currentTalk', 
+      [invalidTalkId, mockCallback]
+    )
     
     // Assert results after handler execution
     expect(mockSocket.broadcast.emit).not.toHaveBeenCalled()

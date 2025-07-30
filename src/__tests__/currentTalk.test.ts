@@ -5,16 +5,6 @@ import { handleCurrentTalk } from '../socket/currentTalk'
 import { CurrentTalkModel } from '../repository/mongodb.schema'
 import { SocketData } from '../socket/socket.server.types'
 
-// Mock dependencies
-jest.mock('../util/log', () => ({
-  default: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn()
-  }
-}))
-
 // Mock isInputValid utility
 jest.mock('../util/isInputValid', () => ({
   __esModule: true,

@@ -6,20 +6,6 @@ import { LoginCodeModel, UserModel } from '../repository/mongodb.schema'
 import { ExtendedError } from 'socket.io/dist/namespace'
 import { SocketData } from '../socket/socket.server.types'
 
-// Mock the logger
-jest.mock('../util/log', () => ({
-  debug: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  default: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn()
-  }
-}))
-
 describe('Socket Middleware Authentication', () => {
   let mongoServer: MongoMemoryServer
 

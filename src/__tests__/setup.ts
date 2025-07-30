@@ -10,6 +10,6 @@ global.console = {
   // info: jest.fn(),
   // warn: jest.fn(),
   // error: jest.fn(),
-};
+}
 
 // Note: Test timeout is configured in jest.config.ts (testTimeout: 10000)

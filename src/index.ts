@@ -38,8 +38,8 @@ process.on('uncaughtException', err => {
 
 app.get('/', (req, res) => {
   res.contentType('text/plain')
-  res.send(`adaptTo() Live Server ${version}`);
-});
+  res.send(`adaptTo() Live Server ${version}`)
+})
 
 io.use(middleware)
 io.on('connection', async (socket) => {

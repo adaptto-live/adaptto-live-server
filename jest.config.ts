@@ -1,4 +1,4 @@
-import type { Config } from 'jest';
+import type { Config } from 'jest'
 
 const config: Config = {
   preset: 'ts-jest',
@@ -20,6 +20,6 @@ const config: Config = {
   coverageReporters: ['text', 'lcov', 'html'],
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
   testTimeout: 10000
-};
+}
 
-export default config;
+export default config

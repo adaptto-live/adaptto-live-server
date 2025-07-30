@@ -7,6 +7,11 @@ export default tseslint.config(
   eslint.configs.recommended,
   tseslint.configs.recommended,
   {
+    rules: {
+      'semi': ['error', 'never']
+    }
+  },
+  {
     files: ['**/__tests__/**/*.ts', '**/*.test.ts', '**/*.spec.ts'],
     plugins: {
       jest

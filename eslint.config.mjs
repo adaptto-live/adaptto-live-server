@@ -1,5 +1,6 @@
 import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
+import jest from 'eslint-plugin-jest'
 import { globalIgnores } from "eslint/config"
 
 export default tseslint.config(
@@ -7,17 +8,14 @@ export default tseslint.config(
   tseslint.configs.recommended,
   {
     files: ['**/__tests__/**/*.ts', '**/*.test.ts', '**/*.spec.ts'],
+    plugins: {
+      jest
+    },
     languageOptions: {
-      globals: {
-        jest: 'readonly',
-        describe: 'readonly',
-        it: 'readonly',
-        expect: 'readonly',
-        beforeEach: 'readonly',
-        afterEach: 'readonly',
-        beforeAll: 'readonly',
-        afterAll: 'readonly'
-      }
+      globals: jest.environments.globals.globals
+    },
+    rules: {
+      ...jest.configs.recommended.rules
     }
   },
   globalIgnores([

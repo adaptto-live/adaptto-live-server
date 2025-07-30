@@ -5,12 +5,6 @@ import { handleCurrentTalk } from '../socket/currentTalk'
 import { CurrentTalkModel } from '../repository/mongodb.schema'
 import { SocketData } from '../socket/socket.server.types'
 
-// Mock isInputValid utility
-jest.mock('../util/isInputValid', () => ({
-  __esModule: true,
-  default: jest.fn().mockReturnValue(true)
-}))
-
 describe('Current Talk Handler', () => {
   let mongoServer: MongoMemoryServer
 
@@ -133,10 +127,6 @@ describe('Current Talk Handler', () => {
       }
     })
 
-    // Import the real isInputValid module and mock it
-    const isInputValid = require('../util/isInputValid').default
-    isInputValid.mockReturnValue(true)
-
     // Act
     await handleCurrentTalk(mockSocket as any)
 
@@ -155,7 +145,7 @@ describe('Current Talk Handler', () => {
   test('should validate input when changing current talk', async () => {
     // Arrange
     const mockSocket = createMockSocket({ admin: true })
-    const invalidTalkId = 'invalid-talk-id'
+    const invalidTalkId = '$#!%'
     const mockCallback = jest.fn()
     
     // Mock the 'on' method to capture and execute the callback
@@ -165,15 +155,10 @@ describe('Current Talk Handler', () => {
       }
     })
 
-    // Import the real isInputValid module and mock it to return false (invalid input)
-    const isInputValid = require('../util/isInputValid').default
-    isInputValid.mockReturnValue(false)
-
     // Act
     await handleCurrentTalk(mockSocket as any)
 
     // Assert
-    expect(isInputValid).toHaveBeenCalled()
     expect(mockSocket.broadcast.emit).not.toHaveBeenCalled()
     
     // Verify database was not updated

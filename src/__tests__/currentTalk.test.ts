@@ -120,18 +120,27 @@ describe('Current Talk Handler', () => {
     const newTalkId = 'new-talk-456'
     const mockCallback = jest.fn()
     
-    // Mock the 'on' method to capture and execute the callback
-    mockSocket.on.mockImplementation((event, handler) => {
-      if (event === 'currentTalk') {
-        handler(newTalkId, mockCallback)
-      }
+    // Create a promise to ensure we wait for the async handler
+    const handlerPromise = new Promise<void>(async resolve => {
+      // Mock the 'on' method to capture and execute the handler
+      mockSocket.on.mockImplementation((event, handler) => {
+        if (event === 'currentTalk') {
+          // Execute the handler and resolve when done
+          (async () => {
+            await handler(newTalkId, mockCallback)
+            resolve()
+          })();
+        }
+      })
+      
+      // Call the function that registers the handler
+      await handleCurrentTalk(mockSocket as any)
     })
-
-    // Act
-    await handleCurrentTalk(mockSocket as any)
-
-    // Assert
-    expect(mockSocket.on).toHaveBeenCalledWith('currentTalk', expect.any(Function))
+    
+    // Wait for the handler to complete
+    await handlerPromise
+    
+    // Assert results after handler execution
     expect(mockCallback).toHaveBeenCalledWith({ success: true })
     expect(mockSocket.broadcast.emit).toHaveBeenCalledWith('currentTalk', newTalkId)
     
@@ -148,17 +157,27 @@ describe('Current Talk Handler', () => {
     const invalidTalkId = '$#!%'
     const mockCallback = jest.fn()
     
-    // Mock the 'on' method to capture and execute the callback
-    mockSocket.on.mockImplementation((event, handler) => {
-      if (event === 'currentTalk') {
-        handler(invalidTalkId, mockCallback)
-      }
+    // Create a promise to ensure we wait for the async handler
+    const handlerPromise = new Promise<void>(async resolve => {
+      // Mock the 'on' method to capture and execute the handler
+      mockSocket.on.mockImplementation((event, handler) => {
+        if (event === 'currentTalk') {
+          // Execute the handler and resolve when done
+          (async () => {
+            await handler(invalidTalkId, mockCallback)
+            resolve()
+          })();
+        }
+      })
+      
+      // Call the function that registers the handler
+      await handleCurrentTalk(mockSocket as any)
     })
-
-    // Act
-    await handleCurrentTalk(mockSocket as any)
-
-    // Assert
+    
+    // Wait for the handler to complete
+    await handlerPromise
+    
+    // Assert results after handler execution
     expect(mockSocket.broadcast.emit).not.toHaveBeenCalled()
     
     // Verify database was not updated

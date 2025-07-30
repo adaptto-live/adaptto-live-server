@@ -70,7 +70,7 @@ describe('Current Talk Handler', () => {
           (async () => {
             await handler(...handlerParams)
             resolve()
-          })();
+          })()
         }
       })
       

@@ -2,7 +2,7 @@ import { Socket } from 'socket.io'
 
 export default class RoomUsers {
 
-  private usersInRooms = new Map<string,Map<string,string>>()
+  private readonly usersInRooms = new Map<string,Map<string,string>>()
   
   /**
    * User joins given room.

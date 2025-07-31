@@ -1,10 +1,10 @@
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
 import { v4 as uuidv4 } from 'uuid'
-import { middleware } from '../socket/middleware'
-import { LoginCodeModel, UserModel } from '../repository/mongodb.schema'
+import { middleware } from '../../socket/middleware'
+import { LoginCodeModel, UserModel } from '../../repository/mongodb.schema'
 import { ExtendedError } from 'socket.io/dist/namespace'
-import { SocketData } from '../socket/socket.server.types'
+import { SocketData } from '../../socket/socket.server.types'
 
 describe('Socket Middleware Authentication', () => {
   let mongoServer: MongoMemoryServer

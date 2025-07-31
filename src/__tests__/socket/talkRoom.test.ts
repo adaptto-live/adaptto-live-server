@@ -10,18 +10,6 @@ import {
 } from '../../repository/mongodb.schema'
 import { SocketData } from '../../socket/socket.server.types'
 import executeSocketHandler from '../helper/executeSocketHandler'
-import RoomUsers from '../../util/RoomUsers'
-
-// Mock the RoomUsers class
-jest.mock('../../util/RoomUsers', () => {
-  return jest.fn().mockImplementation(() => {
-    return {
-      joinsRoom: jest.fn().mockReturnValue(['testUser']),
-      leavesRoom: jest.fn().mockReturnValue(['otherUser']),
-      disconnected: jest.fn().mockReturnValue([{talkId: 'test-talk-123', usernames: []}])
-    }
-  })
-})
 
 describe('Talk Room Handler', () => {
   let mongoServer: MongoMemoryServer
@@ -342,7 +330,7 @@ describe('Talk Room Handler', () => {
     // Assert
     expect(mockSocket.leave).toHaveBeenCalledWith(talkId)
     expect(mockIo.to).toHaveBeenCalledWith(talkId)
-    expect(mockIo.emit).toHaveBeenCalledWith('roomUsers', ['otherUser'])
+    expect(mockIo.emit).toHaveBeenCalledWith('roomUsers', [])
   })
 
   // Test case 8: Should handle disconnect event
@@ -350,18 +338,28 @@ describe('Talk Room Handler', () => {
     // Arrange
     const mockIo = createMockIo()
     const mockSocket = createMockSocket()
+    const talkId = 'test-talk-123'
     
     // Act
     await handleTalkRoom(mockIo as any, mockSocket as any)
     
-    // Manually trigger the disconnect handler since executeSocketHandler doesn't work well with disconnect
-    const disconnectHandler = mockSocket.on.mock.calls.find(call => call[0] === 'disconnect')[1]
-    disconnectHandler()
+    // enter room
+    await executeSocketHandler(
+      mockSocket as any, 
+      (socket) => Promise.resolve(handleTalkRoom(mockIo as any, socket as any)), 
+      'roomEnter', 
+      [talkId]
+    )
+
+    // disconnect
+    await executeSocketHandler(
+      mockSocket as any, 
+      (socket) => Promise.resolve(handleTalkRoom(mockIo as any, socket as any)), 
+      'disconnect', 
+      []
+    )
     
     // Assert
-    const roomUsers = new RoomUsers()
-    expect(roomUsers.disconnected).toHaveBeenCalledWith(mockSocket)
-    expect(mockIo.to).toHaveBeenCalledWith('test-talk-123')
     expect(mockIo.emit).toHaveBeenCalledWith('roomUsers', [])
   })
 

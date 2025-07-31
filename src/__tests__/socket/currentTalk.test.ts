@@ -1,9 +1,9 @@
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
 import { v4 as uuidv4 } from 'uuid'
-import { handleCurrentTalk } from '../socket/currentTalk'
-import { CurrentTalkModel } from '../repository/mongodb.schema'
-import { SocketData } from '../socket/socket.server.types'
+import { handleCurrentTalk } from '../../socket/currentTalk'
+import { CurrentTalkModel } from '../../repository/mongodb.schema'
+import { SocketData } from '../../socket/socket.server.types'
 
 describe('Current Talk Handler', () => {
   let mongoServer: MongoMemoryServer

@@ -413,7 +413,8 @@ describe('Talk Room QA Entries Handler', () => {
     
     const mockSocket = createMockSocket({ 
       userid: 'test-user-id', 
-      username: 'testUser' 
+      username: 'testUser',
+      qaadmin: true
     })
     
     const mockCallback = jest.fn()
@@ -436,7 +437,7 @@ describe('Talk Room QA Entries Handler', () => {
     expect(storedEntry?.text).toBe('Question') // Unchanged
     expect(storedEntry?.answered).toBe(true) // Changed
   })
-  
+
   // Test case 10: Should allow QA admin to update answered status
   test('should allow QA admin to update answered status', async () => {
     // Arrange

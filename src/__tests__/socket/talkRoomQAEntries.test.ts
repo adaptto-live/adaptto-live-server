@@ -621,6 +621,9 @@ describe('Talk Room QA Entries Handler', () => {
       [{ id: entryId }, mockCallback]
     )
     
+    // Add delay to allow async operations to complete
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
     // Assert
     expect(mockCallback).toHaveBeenCalledWith({ success: true })
     
@@ -676,6 +679,9 @@ describe('Talk Room QA Entries Handler', () => {
       'qaEntryLike', 
       [{ id: entryId }, mockCallback]
     )
+    
+    // Add delay to allow async operations to complete
+    await new Promise(resolve => setTimeout(resolve, 100))
     
     // Assert
     expect(mockCallback).toHaveBeenCalledWith({ success: true })

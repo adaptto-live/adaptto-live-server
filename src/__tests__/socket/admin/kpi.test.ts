@@ -126,7 +126,6 @@ describe('Admin KPI Handler', () => {
     
     // Assert
     expect(mockSocket.emit).toHaveBeenCalledWith('adminKPIDataset', expect.objectContaining({
-      title: 'User Registrations',
       xAxisTitle: 'Hour of day',
       yAxisTitle: '# Registrations',
       days: expect.arrayContaining([
@@ -198,7 +197,6 @@ describe('Admin KPI Handler', () => {
     
     // Check for the user activity dataset
     expect(mockSocket.emit).toHaveBeenCalledWith('adminKPIDataset', expect.objectContaining({
-      title: 'User Activity',
       xAxisTitle: 'Hour of day',
       yAxisTitle: '# Messages / Q&A Entries / Ratings',
       days: expect.arrayContaining([

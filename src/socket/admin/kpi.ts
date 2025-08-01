@@ -34,8 +34,6 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
     }
 
     const users = await UserModel.find().sort({created:1}).exec()
-    const debugDateInfo : string[] = []
-    debugDateInfo.push(`dates: ${dates.join(' | ')}, dates-ISO: ${dates.map(date => date.toISOString()).join(' | ')}, transformedDates: ${toLocalMoments(dates).join(' | ')}`)
     toLocalMoments(dates).forEach((date, index) => {
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
@@ -58,7 +56,6 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
       }
     })
 
-    dataset.title += ` (${debugDateInfo.join(' | ')})`
     socket.emit('adminKPIDataset', dataset)
   }
 
@@ -77,8 +74,6 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
     const messages = await MessageModel.find().sort({date:1}).exec()
     const qaEntries = await QAEntryModel.find().sort({date:1}).exec()
 
-    const debugDateInfo : string[] = []
-    debugDateInfo.push(`dates: ${dates.join(' | ')}, dates-ISO: ${dates.map(date => date.toISOString()).join(' | ')}, transformedDates: ${toLocalMoments(dates).join(' | ')}`)
     toLocalMoments(dates).forEach((date, index) => {
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
@@ -113,8 +108,6 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
         }
       }
     })
-
-    dataset.title += ` (${debugDateInfo.join(' | ')})`
 
     socket.emit('adminKPIDataset', dataset)
   }

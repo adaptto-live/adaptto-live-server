@@ -38,6 +38,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
     const debugDateInfo : string[] = []
     debugDateInfo.push(`dates: ${dates.join(' | ')}, dates-ISO: ${dates.map(date => date.toISOString()).join(' | ')}, transformedDates: ${transformDates(dates).join(' | ')}`)
     transformDates(dates).forEach((date, index) => {
+      debugDateInfo.push(`day #${index}: ${date}, year: ${date.getFullYear()}, month: ${date.getMonth()+1}, day: ${date.getDate()}`)
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
       for (let hour = 9; hour <= 18; hour++) {
@@ -81,6 +82,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
     const debugDateInfo : string[] = []
     debugDateInfo.push(`dates: ${dates.join(' | ')}, dates-ISO: ${dates.map(date => date.toISOString()).join(' | ')}, transformedDates: ${transformDates(dates).join(' | ')}`)
     transformDates(dates).forEach((date, index) => {
+      debugDateInfo.push(`day #${index}: ${date}, year: ${date.getFullYear()}, month: ${date.getMonth()+1}, day: ${date.getDate()}`)
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
       for (let hour = 9; hour <= 18; hour++) {

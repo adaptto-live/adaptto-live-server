@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema<User>({
   admin: { type: Boolean, required:false },
   qaadmin: { type: Boolean, required:false },
   blocked: { type: Boolean, required:false },
-  created: { type: Date, required:true },
+  created: { type: Date, required:true, index:true },
   updated: { type: Date, required:false }
 })
 export const UserModel = mongoose.model<User>('user', UserSchema)
@@ -61,7 +61,7 @@ const TalkRatingSchema = new mongoose.Schema<TalkRating>({
   userid: { type: String, required:true, index:true },
   rating: { type: Number, required:true },
   comment: { type: String, required:false },
-  created: { type: Date, required:true }
+  created: { type: Date, required:true, index:true }
 })
 export const TalkRatingModel = mongoose.model<TalkRating>('talk-rating', TalkRatingSchema)
 

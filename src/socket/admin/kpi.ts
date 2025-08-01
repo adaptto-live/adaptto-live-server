@@ -3,6 +3,9 @@ import { ClientToServerEvents, KPIDataset, KPIDatasetDay, ServerToClientEvents }
 import { InterServerEvents, SocketData } from '../socket.server.types'
 import log from '../../util/log'
 import { MessageModel, QAEntryModel, TalkRatingModel, UserModel } from '../../repository/mongodb.schema'
+import moment from 'moment-timezone'
+
+const timezone = 'Europe/Berlin'
 
 export async function handleAdminKPI(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { admin, qaadmin } = socket.data
@@ -38,7 +41,14 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
       dataset.days.push(day)
       for (let hour = 9; hour <= 18; hour++) {
         for (const minuteSlot of minuteSlots) {
-          const upToDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minuteSlot, 0)
+          const upToDate = moment.tz({
+            year: date.getFullYear(),
+            month: date.getMonth(),
+            day: date.getDate(),
+            hour,
+            minute: minuteSlot,
+            second: 0
+          }, timezone).toDate();
           const count = users.filter(user => user.created <= upToDate).length
           day.values.push({
             x: hour + (minuteSlot / 60),
@@ -71,8 +81,25 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
       dataset.days.push(day)
       for (let hour = 9; hour <= 18; hour++) {
         minuteSlots.forEach((minuteSlot,index) => {
-          const fromDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minuteSlot, 0)
-          const toDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minuteSlots[index+1] ?? 60, 0)
+          const fromDate = moment.tz({
+            year: date.getFullYear(),
+            month: date.getMonth(),
+            day: date.getDate(),
+            hour: hour,
+            minute: minuteSlot,
+            second: 0
+          }, timezone).toDate();
+
+          const toDate = moment.tz({
+            year: date.getFullYear(),
+            month: date.getMonth(),
+            day: date.getDate(),
+            hour: minuteSlot == 30 ? hour + 1 : hour,
+            minute: minuteSlot == 0 ? 30 : 0,
+            second: 0
+          }, timezone).toDate();
+
+          console.log(`fromDate: ${fromDate}, toDate: ${toDate}`)
 
           const countTalkRatings = talkRatings.filter(item => item.created >= fromDate && item.created < toDate).length
           const countMessages = messages.filter(item => item.date >= fromDate && item.date < toDate).length

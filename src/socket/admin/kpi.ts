@@ -4,7 +4,6 @@ import { InterServerEvents, SocketData } from '../socket.server.types'
 import log from '../../util/log'
 import { MessageModel, QAEntryModel, TalkRatingModel, UserModel } from '../../repository/mongodb.schema'
 import moment from 'moment-timezone'
-import { date } from 'joi'
 
 export async function handleAdminKPI(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { admin, qaadmin } = socket.data

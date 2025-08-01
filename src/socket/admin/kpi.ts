@@ -36,6 +36,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
     }
 
     const users = await UserModel.find().sort({created:1}).exec()
+    const debugDateInfo : string[] = []
     dates.forEach((date, index) => {
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
@@ -49,6 +50,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
             minute: minuteSlot,
             second: 0
           }, timezone).toDate()
+          debugDateInfo.push(`upToDate: ${upToDate.toISOString()}`)
           const count = users.filter(user => user.created <= upToDate).length
           day.values.push({
             x: hour + (minuteSlot / 60),
@@ -58,6 +60,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
       }
     })
 
+    dataset.title += ` (${debugDateInfo.join(' | ')})`
     socket.emit('adminKPIDataset', dataset)
   }
 
@@ -76,6 +79,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
     const messages = await MessageModel.find().sort({date:1}).exec()
     const qaEntries = await QAEntryModel.find().sort({date:1}).exec()
 
+    const debugDateInfo : string[] = []
     dates.forEach((date, index) => {
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
@@ -99,6 +103,8 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
             second: 0
           }, timezone).toDate()
 
+          debugDateInfo.push(`from: ${fromDate.toISOString()} to: ${toDate.toISOString()}`)
+
           const countTalkRatings = talkRatings.filter(item => item.created >= fromDate && item.created < toDate).length
           const countMessages = messages.filter(item => item.date >= fromDate && item.date < toDate).length
           const countQAEntries = qaEntries.filter(item => item.date >= fromDate && item.date < toDate).length
@@ -110,6 +116,8 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
         }
       }
     })
+
+    dataset.title += ` (${debugDateInfo.join(' | ')})`
 
     socket.emit('adminKPIDataset', dataset)
   }

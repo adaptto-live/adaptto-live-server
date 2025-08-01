@@ -3,7 +3,7 @@ import { ClientToServerEvents, KPIDataset, KPIDatasetDay, ServerToClientEvents }
 import { InterServerEvents, SocketData } from '../socket.server.types'
 import log from '../../util/log'
 import { MessageModel, QAEntryModel, TalkRatingModel, UserModel } from '../../repository/mongodb.schema'
-import moment from 'moment-timezone'
+import moment, { Moment } from 'moment-timezone'
 
 export async function handleAdminKPI(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { admin, qaadmin } = socket.data
@@ -35,17 +35,16 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
 
     const users = await UserModel.find().sort({created:1}).exec()
     const debugDateInfo : string[] = []
-    debugDateInfo.push(`dates: ${dates.join(' | ')}, dates-ISO: ${dates.map(date => date.toISOString()).join(' | ')}, transformedDates: ${transformDates(dates).join(' | ')}`)
-    transformDates(dates).forEach((date, index) => {
-      debugDateInfo.push(`day #${index}: ${date}, year: ${date.getFullYear()}, month: ${date.getMonth()+1}, day: ${date.getDate()}`)
+    debugDateInfo.push(`dates: ${dates.join(' | ')}, dates-ISO: ${dates.map(date => date.toISOString()).join(' | ')}, transformedDates: ${toLocalMoments(dates).join(' | ')}`)
+    toLocalMoments(dates).forEach((date, index) => {
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
       for (let hour = 9; hour <= 18; hour++) {
         for (const minuteSlot of minuteSlots) {
           const upToDate = moment.tz({
-            year: date.getFullYear(),
-            month: date.getMonth(),
-            day: date.getDate(),
+            year: date.year(),
+            month: date.month(),
+            day: date.date(),
             hour,
             minute: minuteSlot,
             second: 0
@@ -79,26 +78,25 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
     const qaEntries = await QAEntryModel.find().sort({date:1}).exec()
 
     const debugDateInfo : string[] = []
-    debugDateInfo.push(`dates: ${dates.join(' | ')}, dates-ISO: ${dates.map(date => date.toISOString()).join(' | ')}, transformedDates: ${transformDates(dates).join(' | ')}`)
-    transformDates(dates).forEach((date, index) => {
-      debugDateInfo.push(`day #${index}: ${date}, year: ${date.getFullYear()}, month: ${date.getMonth()+1}, day: ${date.getDate()}`)
+    debugDateInfo.push(`dates: ${dates.join(' | ')}, dates-ISO: ${dates.map(date => date.toISOString()).join(' | ')}, transformedDates: ${toLocalMoments(dates).join(' | ')}`)
+    toLocalMoments(dates).forEach((date, index) => {
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
       for (let hour = 9; hour <= 18; hour++) {
         for (const minuteSlot of minuteSlots) {
           const fromDate = moment.tz({
-            year: date.getFullYear(),
-            month: date.getMonth(),
-            day: date.getDate(),
+            year: date.year(),
+            month: date.month(),
+            day: date.date(),
             hour: hour,
             minute: minuteSlot,
             second: 0
           }, timezone).toDate()
 
           const toDate = moment.tz({
-            year: date.getFullYear(),
-            month: date.getMonth(),
-            day: date.getDate(),
+            year: date.year(),
+            month: date.month(),
+            day: date.date(),
             hour: minuteSlot == 30 ? hour + 1 : hour,
             minute: minuteSlot == 0 ? 30 : 0,
             second: 0
@@ -125,6 +123,6 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
 
 const timezone = 'Europe/Berlin'
 
-function transformDates(dates : Date[]) : Date[] {
-  return dates.map(date => moment.tz(date.toISOString(), timezone).toDate())
+function toLocalMoments(dates : Date[]) : Moment[] {
+  return dates.map(date => moment.tz(date.toISOString(), timezone))
 } 

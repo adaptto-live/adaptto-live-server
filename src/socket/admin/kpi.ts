@@ -4,6 +4,7 @@ import { InterServerEvents, SocketData } from '../socket.server.types'
 import log from '../../util/log'
 import { MessageModel, QAEntryModel, TalkRatingModel, UserModel } from '../../repository/mongodb.schema'
 import moment from 'moment-timezone'
+import { date } from 'joi'
 
 export async function handleAdminKPI(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { admin, qaadmin } = socket.data
@@ -35,6 +36,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
 
     const users = await UserModel.find().sort({created:1}).exec()
     const debugDateInfo : string[] = []
+    debugDateInfo.push(`dates: ${dates.join(' | ')}, dates-ISO: ${dates.map(date => date.toISOString()).join(' | ')}, transformedDates: ${transformDates(dates).join(' | ')}`)
     transformDates(dates).forEach((date, index) => {
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
@@ -48,7 +50,6 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
             minute: minuteSlot,
             second: 0
           }, timezone).toDate()
-          debugDateInfo.push(`upToDate: ${upToDate.toISOString()}`)
           const count = users.filter(user => user.created <= upToDate).length
           day.values.push({
             x: hour + (minuteSlot / 60),
@@ -78,6 +79,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
     const qaEntries = await QAEntryModel.find().sort({date:1}).exec()
 
     const debugDateInfo : string[] = []
+    debugDateInfo.push(`dates: ${dates.join(' | ')}, dates-ISO: ${dates.map(date => date.toISOString()).join(' | ')}, transformedDates: ${transformDates(dates).join(' | ')}`)
     transformDates(dates).forEach((date, index) => {
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
@@ -100,8 +102,6 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
             minute: minuteSlot == 0 ? 30 : 0,
             second: 0
           }, timezone).toDate()
-
-          debugDateInfo.push(`from: ${fromDate.toISOString()} to: ${toDate.toISOString()}`)
 
           const countTalkRatings = talkRatings.filter(item => item.created >= fromDate && item.created < toDate).length
           const countMessages = messages.filter(item => item.date >= fromDate && item.date < toDate).length

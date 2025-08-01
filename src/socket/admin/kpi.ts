@@ -48,7 +48,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
             hour,
             minute: minuteSlot,
             second: 0
-          }, timezone).toDate();
+          }, timezone).toDate()
           const count = users.filter(user => user.created <= upToDate).length
           day.values.push({
             x: hour + (minuteSlot / 60),
@@ -80,7 +80,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
       for (let hour = 9; hour <= 18; hour++) {
-        minuteSlots.forEach((minuteSlot,index) => {
+        for (const minuteSlot of minuteSlots) {
           const fromDate = moment.tz({
             year: date.getFullYear(),
             month: date.getMonth(),
@@ -88,7 +88,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
             hour: hour,
             minute: minuteSlot,
             second: 0
-          }, timezone).toDate();
+          }, timezone).toDate()
 
           const toDate = moment.tz({
             year: date.getFullYear(),
@@ -97,9 +97,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
             hour: minuteSlot == 30 ? hour + 1 : hour,
             minute: minuteSlot == 0 ? 30 : 0,
             second: 0
-          }, timezone).toDate();
-
-          console.log(`fromDate: ${fromDate}, toDate: ${toDate}`)
+          }, timezone).toDate()
 
           const countTalkRatings = talkRatings.filter(item => item.created >= fromDate && item.created < toDate).length
           const countMessages = messages.filter(item => item.date >= fromDate && item.date < toDate).length
@@ -109,7 +107,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
             x: hour + (minuteSlot / 60),
             y: countTalkRatings + countMessages + countQAEntries
           })
-        })
+        }
       }
     })
 

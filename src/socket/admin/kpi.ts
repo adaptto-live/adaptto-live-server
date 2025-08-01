@@ -5,8 +5,6 @@ import log from '../../util/log'
 import { MessageModel, QAEntryModel, TalkRatingModel, UserModel } from '../../repository/mongodb.schema'
 import moment from 'moment-timezone'
 
-const timezone = 'Europe/Berlin'
-
 export async function handleAdminKPI(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { admin, qaadmin } = socket.data
   const minuteSlots = [0, 30]
@@ -37,7 +35,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
 
     const users = await UserModel.find().sort({created:1}).exec()
     const debugDateInfo : string[] = []
-    dates.forEach((date, index) => {
+    transformDates(dates).forEach((date, index) => {
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
       for (let hour = 9; hour <= 18; hour++) {
@@ -80,7 +78,7 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
     const qaEntries = await QAEntryModel.find().sort({date:1}).exec()
 
     const debugDateInfo : string[] = []
-    dates.forEach((date, index) => {
+    transformDates(dates).forEach((date, index) => {
       const day : KPIDatasetDay = { day: index+1, values: [] }
       dataset.days.push(day)
       for (let hour = 9; hour <= 18; hour++) {
@@ -123,3 +121,9 @@ export async function handleAdminKPI(socket : Socket<ClientToServerEvents,Server
   }
 
 }
+
+const timezone = 'Europe/Berlin'
+
+function transformDates(dates : Date[]) : Date[] {
+  return dates.map(date => moment.tz(date.toISOString(), timezone).toDate())
+} 

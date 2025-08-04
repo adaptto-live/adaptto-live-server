@@ -13,6 +13,7 @@ const loginTokenString = Joi.string()
 
 const messageString = Joi.string()
   .max(1000)  // in client, only 500 allowed, but emojis are usually counted as 2
+  .allow('')
 
 const qaEntryMessageString = Joi.string()
   .max(2000)  // in client, only 1000 allowed, but emojis are usually counted as 2

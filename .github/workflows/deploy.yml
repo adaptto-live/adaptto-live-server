@@ -21,7 +21,7 @@ jobs:
 
     - uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 22
         cache: npm
 
     - name: npm install, build
@@ -38,3 +38,5 @@ jobs:
         slot-name: Production
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D84F8AB7066D4083B2595C9D262C4D2D }}
         package: .
+      env:
+        SCM_DO_BUILD_DURING_DEPLOYMENT: true

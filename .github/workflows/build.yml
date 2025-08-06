@@ -2,13 +2,9 @@ name: Build
 
 on:
   push:
-    branches-ignore:
-      - experimental/**
-      - master
+    branches:
+      - develop
   pull_request:
-    branches-ignore:
-      - experimental/**
-      - master
   workflow_dispatch:
 
 jobs:
@@ -30,14 +26,15 @@ jobs:
 
     - uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 22
         cache: npm
 
     - run: npm install
     - run: npm run lint
+    - run: npm test -- --coverage
     - run: npm run build
 
-    - uses: SonarSource/sonarcloud-github-action@master
+    - uses: SonarSource/sonarqube-scan-action@v5
       if: env.SONAR_TOKEN != null
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

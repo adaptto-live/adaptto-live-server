@@ -18,29 +18,28 @@ export async function handleTalkRoomModeratorNotes(socket : Socket<ClientToServe
 
   // CRUD handling for chat messages
   socket.on('talkModeratorNotes', handleNewOrUpdate)
+}
 
-  async function handleNewOrUpdate(notes: ModeratorTalkNotesToServer, callback: (result: OperationResult) => void) {
-    if (!isInputValid(talkModeratorNotesToServerObject, notes, callback)) {
-      return
-    }
-
-    const { talkId, text } = notes
-    const updated = new Date()
-
-    const existingNotes = await TalkModeratorNotesModel.findOne({talkId})
-    if (existingNotes != null) {
-      log.debug(`Update moderator talk notes for ${talkId}: ${text}`)
-      existingNotes.text = text
-      existingNotes.updated = updated
-      await existingNotes.save()
-      callback({success: true})
-    }
-    else {
-      log.debug(`Create moderator talk notes for ${talkId}: ${text}`)
-      const id = uuidv4()
-      await TalkModeratorNotesModel.create({ _id:id, talkId, text, updated })
-      callback({success: true})
-    }
+async function handleNewOrUpdate(notes: ModeratorTalkNotesToServer, callback: (result: OperationResult) => void) {
+  if (!isInputValid(talkModeratorNotesToServerObject, notes, callback)) {
+    return
   }
 
+  const { talkId, text } = notes
+  const updated = new Date()
+
+  const existingNotes = await TalkModeratorNotesModel.findOne({talkId})
+  if (existingNotes != null) {
+    log.debug(`Update moderator talk notes for ${talkId}: ${text}`)
+    existingNotes.text = text
+    existingNotes.updated = updated
+    await existingNotes.save()
+    callback({success: true})
+  }
+  else {
+    log.debug(`Create moderator talk notes for ${talkId}: ${text}`)
+    const id = uuidv4()
+    await TalkModeratorNotesModel.create({ _id:id, talkId, text, updated })
+    callback({success: true})
+  }
 }

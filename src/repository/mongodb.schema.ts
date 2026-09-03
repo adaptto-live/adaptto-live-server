@@ -2,8 +2,8 @@ import mongoose from 'mongoose'
 
 export interface LoginCode {
   code: string
-  userid: string
-  used: Date
+  userid?: string | null
+  used?: Date | null
 }
 const LoginCodeSchema = new mongoose.Schema<LoginCode>({
   code: { type: String, required:true, index:true },

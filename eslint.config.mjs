@@ -29,6 +29,7 @@ export default tseslint.config(
     }
   },
   globalIgnores([
-    'ecosystem.config.js'
+    'ecosystem.config.js',
+    'build/**'
   ])
 )

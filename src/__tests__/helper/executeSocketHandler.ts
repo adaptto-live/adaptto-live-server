@@ -10,7 +10,7 @@
    */
 export default async function executeSocketHandler(
   mockSocket: any,
-  handlerFunction: (socket: any) => Promise<void>, 
+  handlerFunction: (socket: any) => Promise<void> | void, 
   eventName: string, 
   handlerParams: any[] = []
 ): Promise<void> {

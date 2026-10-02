@@ -138,6 +138,8 @@ export interface UserUpdate {
 export interface AverageTalkRating {
   talkId: string
   averageRating: number
+  medianRating: number
+  standardDeviation: number
   participants: number
   comments: string[]
 }

@@ -4,7 +4,7 @@ import { InterServerEvents, SocketData } from '../socket.server.types'
 import log from '../../util/log'
 import { TalkRatingModel, TalkRating } from '../../repository/mongodb.schema'
 
-export async function handleAdminTalkRatings(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
+export function handleAdminTalkRatings(socket : Socket<ClientToServerEvents,ServerToClientEvents,InterServerEvents,SocketData>) {
   const { admin, qaadmin } = socket.data
 
   // admin-only operations

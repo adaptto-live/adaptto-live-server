@@ -153,12 +153,16 @@ describe('Admin Talk Ratings Handler', () => {
       expect.objectContaining({
         talkId: talkId1,
         averageRating: 4, // (5 + 4 + 3) / 3 = 4
+        medianRating: 4, // median of [3, 4, 5] = 4
+        standardDeviation: 1, // sample stddev of [5, 4, 3] = 1
         participants: 3,
         comments: expect.arrayContaining(['Excellent presentation', 'Good content'])
       }),
       expect.objectContaining({
         talkId: talkId2,
         averageRating: 5, // (5 + 5) / 2 = 5
+        medianRating: 5, // median of [5, 5] = 5
+        standardDeviation: 0, // sample stddev of [5, 5] = 0
         participants: 2,
         comments: ['Loved it!']
       })
@@ -234,8 +238,49 @@ describe('Admin Talk Ratings Handler', () => {
       expect.objectContaining({
         talkId,
         averageRating: 4, // (4 + 3 + 5) / 3 = 4
+        medianRating: 4, // median of [3, 4, 5] = 4
+        standardDeviation: 1, // sample stddev of [4, 3, 5] = 1
         participants: 3,
         comments: ['Valid comment'] // Empty comments should be filtered out
+      })
+    ])
+  })
+
+  // Test case 7: Should calculate median and sample standard deviation for an even number of ratings
+  test('should calculate median and sample standard deviation', async () => {
+    // Arrange
+    const mockSocket = createMockSocket({ admin: true })
+
+    const talkId = 'talk-stats'
+    const ratings = [1, 2, 3, 4]
+    for (const [index, rating] of ratings.entries()) {
+      await TalkRatingModel.create({
+        _id: uuidv4(),
+        talkId,
+        userid: `user-${index}`,
+        rating,
+        created: new Date()
+      })
+    }
+
+    // Act
+    await handleAdminTalkRatings(mockSocket as any)
+
+    await executeSocketHandler(
+      mockSocket as any,
+      handleAdminTalkRatings,
+      'adminGetTalkRatings',
+      []
+    )
+
+    // Assert
+    expect(mockSocket.emit).toHaveBeenCalledWith('adminTalkRatings', [
+      expect.objectContaining({
+        talkId,
+        averageRating: 2.5, // (1 + 2 + 3 + 4) / 4 = 2.5
+        medianRating: 2.5, // median of [1, 2, 3, 4] = (2 + 3) / 2 = 2.5
+        standardDeviation: expect.closeTo(1.2909944, 5), // sample stddev of [1, 2, 3, 4]
+        participants: 4
       })
     ])
   })
